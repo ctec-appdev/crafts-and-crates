@@ -13,9 +13,11 @@
 <!-- ===== HEADER ===== -->
 <header class="site-header">
   <div class="header-inner">
-    <a class="logo" href="index.html" aria-label="Crafts &amp; Crates ATL – Home">
-      <img src="assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL">
-    </a>
+    <div class="logo-wrap">
+      <a class="logo" href="index.html" aria-label="Crafts &amp; Crates ATL – Home">
+            <img src="assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL">
+          </a>
+    </div>
     <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -39,152 +41,174 @@
 </header>
 
 <!-- ===== HERO ===== -->
-<section class="hero">
-  <div class="hero-bg" style="background-image: url('assets/images/IMG_9508.jpg');" aria-hidden="true"></div>
+<section class="hero hero--split">
   <div class="container">
-    <div class="hero-content">
-      <span class="hero-kicker">Free Live Music!</span>
-      <h1>Hip Hop Lives<br>in Summerhill</h1>
-      <p>Crafts &amp; Crates brings live hip-hop events to Halfway Crooks in Atlanta's historic Summerhill neighborhood. Pull up to the shipping containers at the Biergarten for great craft beer, amazing cocktails, awesome food, curated vinyl for sale, and top-tier DJs spinning the livest sets in the city.</p>
-      <div class="btn-group">
-        <a href="events.html" class="btn btn--primary">Upcoming Events</a>
-        <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" class="btn btn--outline">Follow on Instagram</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== PHOTO CAROUSEL ===== -->
-<section class="section section--dark">
-  <div class="container">
-    <p class="section-kicker text-center">Live From Summerhill</p>
-    <h2 class="section-title section-title--white text-center reveal">The Vibes</h2>
-    <div class="divider divider--center"></div>
-    <div class="carousel-wrap reveal" data-autoplay="true" data-interval="4000">
-      <div class="carousel">
-        <div class="carousel-track">
-          <div class="carousel-slide"><img src="assets/images/IMG_9508.jpg" alt="Crafts &amp; Crates live event" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/Screenshot-2025-07-08-175731.jpg" alt="Peppermint Gatty Photo by Merc Storm" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/519630686_10237846098073679_52491940835346888_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/508548355_10236879386226487_1573770693427706600_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/518481913_10237846096993652_2727859128357030340_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/508158788_10236844733840199_8109337779535725197_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/508525785_10236879383706424_3570648505008321202_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/509602419_10236956048102986_5612036842885296169_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/508680232_10236879397106759_1292742303210502198_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/506648294_10236844739240334_2233951548560163971_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/518882082_10237849071908023_4575315702992349590_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
-          <div class="carousel-slide"><img src="assets/images/504120292_10236726293759271_6347704647792367868_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+    <div class="hero-grid">
+      <div class="hero-content">
+        <span class="hero-kicker">Free Live Music!</span>
+        <h1>Hip Hop Lives<br>in Summerhill</h1>
+        <p>Crafts &amp; Crates brings live hip-hop events to Halfway Crooks in Atlanta's historic Summerhill neighborhood. Pull up to the shipping containers at the Biergarten for great craft beer, amazing cocktails, awesome food, curated vinyl for sale, and top-tier DJs spinning the livest sets in the city.</p>
+        <div class="btn-group">
+          <a href="about.html" class="btn btn--primary">Learn More</a>
         </div>
       </div>
-      <button class="carousel-btn carousel-btn--prev" aria-label="Previous photo">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="carousel-btn carousel-btn--next" aria-label="Next photo">
-        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-      <div class="carousel-dots" aria-hidden="true"></div>
+      <div class="hero-media">
+        <div class="carousel-wrap carousel-wrap--light" data-autoplay="true" data-interval="4000">
+          <div class="carousel">
+            <div class="carousel-track">
+              <div class="carousel-slide"><img src="assets/images/IMG_9508.jpg" alt="Crafts &amp; Crates live event"></div>
+              <div class="carousel-slide"><img src="assets/images/Screenshot-2025-07-08-175731.jpg" alt="Peppermint Gatty Photo by Merc Storm" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/519630686_10237846098073679_52491940835346888_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/508548355_10236879386226487_1573770693427706600_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/518481913_10237846096993652_2727859128357030340_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/508158788_10236844733840199_8109337779535725197_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/508525785_10236879383706424_3570648505008321202_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/509602419_10236956048102986_5612036842885296169_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/508680232_10236879397106759_1292742303210502198_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/506648294_10236844739240334_2233951548560163971_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/518882082_10237849071908023_4575315702992349590_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/504120292_10236726293759271_6347704647792367868_n.jpg" alt="Crafts &amp; Crates event photo" loading="lazy"></div>
+            </div>
+          </div>
+          <div class="carousel-dots" aria-hidden="true"></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ===== MAP ===== -->
-<section class="section">
-  <div class="container">
-    <p class="section-kicker text-center">Find Us</p>
-    <h2 class="section-title text-center reveal">Halfway Crooks Biergarten</h2>
-    <div class="divider divider--center"></div>
-    <div class="map-wrap reveal">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3317.916535278074!2d-84.38833872274823!3d33.7369743343087!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88f50387991ce36d%3A0x397bcedf76be031c!2sHalfway%20Crooks%20Beer!5e0!3m2!1sen!2sus!4v1752275911384!5m2!1sen!2sus"
-        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-        title="Halfway Crooks Biergarten location map">
-      </iframe>
-    </div>
-  </div>
-</section>
-
-<!-- ===== HALFWAY CROOKS ===== -->
-<section class="section section--dark">
+<!-- ===== MAP + HALFWAY CROOKS ===== -->
+<section class="section section--concrete">
   <div class="container">
     <div class="two-col">
       <div class="two-col-img reveal">
-        <img src="assets/images/hc2.png" alt="Halfway Crooks Biergarten" class="img-rounded">
-      </div>
-      <div class="two-col-text two-col-text--white reveal reveal-delay-1">
-        <h2 class="section-title section-title--white">Just Bring Your Good Vibes. Halfway Crooks Has the Rest!</h2>
-        <div class="divider"></div>
-        <p>Experience live sets from influential hip-hop artists and DJs as you sip on top-notch craft beer from world renowned Halfway Crooks Brewery. Crafts &amp; Crates is a fun time for all ages and best of all it's no cover to come and enjoy the vibes. There's no better place to hang out and soak in real hip-hop culture. Salute!</p>
-        <div class="info-cards stagger">
-          <div class="info-card">
-            <h5>Where</h5>
-            <p>Halfway Crooks Biergarten<br>640 Reed St. SE<br>Atlanta, GA 30312</p>
-          </div>
-          <div class="info-card">
-            <h5>When</h5>
-            <p>Every Third Saturday</p>
-          </div>
+        <div class="map-wrap">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3317.916535278074!2d-84.38833872274823!3d33.7369743343087!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88f50387991ce36d%3A0x397bcedf76be031c!2sHalfway%20Crooks%20Beer!5e0!3m2!1sen!2sus!4v1752275911384!5m2!1sen!2sus"
+            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="Halfway Crooks Biergarten location map">
+          </iframe>
         </div>
+      </div>
+      <div class="two-col-text reveal reveal-delay-1">
+        <h2 class="section-title">Just Bring Your Good Vibes. Halfway Crooks Has the Rest!</h2>
+        <img src="assets/images/hc2.png" alt="Halfway Crooks Biergarten sign" class="venue-sign img-rounded">
+        <p>Experience live sets from influential hip-hop artists and DJs as you sip on top-notch craft beer from world renowned Halfway Crooks Brewery. Crafts &amp; Crates is a fun time for all ages and best of all it's no cover to come and enjoy the vibes. There's no better place to hang out and soak in real hip-hop culture. Salute!</p>
+        <ul class="venue-meta stagger">
+          <li>
+            <span class="venue-meta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11a7 7 0 1 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+            </span>
+            <div>
+              <h5>Where</h5>
+              <p>Halfway Crooks Biergarten<br>640 Reed St. SE 30312</p>
+            </div>
+          </li>
+          <li>
+            <span class="venue-meta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            </span>
+            <div>
+              <h5>When</h5>
+              <p>Every Third Saturday</p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ===== INSTAGRAM ===== -->
-<section class="section">
-  <div class="container instagram-section">
-    <div class="instagram-logo reveal">
-      <img src="assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL logo">
+<section class="section instagram-band">
+  <div class="ig-collage" aria-hidden="true">
+    <img src="assets/images/475124656_10235108254909311_6341329499779327482_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/492157477_10236086983856923_3865394557841903734_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/508680232_10236879397106759_1292742303210502198_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/475338514_10235108167867135_3671772953964491927_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/492030603_10236086924655443_1798355505770121684_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/506648294_10236844739240334_2233951548560163971_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/475529216_10235108233188768_6848586321276555476_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/492126234_10236086975496714_2500504587252652108_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/518882082_10237849071908023_4575315702992349590_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/475650619_10235108214468300_2403729700945661025_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/492149459_10236086991017102_457810724440218117_n.jpg" alt="" loading="lazy">
+    <img src="assets/images/504120292_10236726293759271_6347704647792367868_n.jpg" alt="" loading="lazy">
+  </div>
+  <div class="container">
+    <div class="two-col">
+      <div class="two-col-text two-col-text--white reveal">
+        <p class="section-kicker">Stay Connected</p>
+        <h2 class="section-title section-title--white">Follow Our Instagram for More Updates</h2>
+        <div class="divider"></div>
+        <p>Follow us on Instagram <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" class="ig-handle">@craftsandcratesatl</a> to see more details about upcoming events PLUS some of our user-generated videos and photos. We have some talented fans!</p>
+        <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" class="btn btn--primary" style="margin-top: 20px;">Go Follow Now</a>
+      </div>
+      <div class="ig-mark reveal reveal-delay-1">
+        <img src="assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL logo">
+        <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" aria-label="Crafts &amp; Crates on Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>
+        </a>
+      </div>
     </div>
-    <p class="section-kicker">Stay Connected</p>
-    <h2 class="section-title reveal">Follow Our Instagram for More Updates</h2>
-    <div class="divider divider--center"></div>
-    <p class="section-intro reveal" style="margin: 0 auto 28px;">
-      Follow us on Instagram @craftsandcratesatl to see more details about upcoming events PLUS some of our user-generated videos and photos. We have some talented fans!
-    </p>
-    <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" class="btn btn--primary reveal">@craftsandcratesatl</a>
   </div>
 </section>
 
 <!-- ===== CALENDAR ===== -->
-<section class="section section--orange">
-  <div class="container text-center">
-    <h2 class="section-title reveal" style="color: #fff;">Make Sure You Keep That Calendar Clear</h2>
-    <div class="divider divider--center" style="background:#fff;"></div>
-    <div style="max-width: 700px; margin: 0 auto;" class="stagger">
-      <p>Come catch the vibe at Crafts &amp; Crates!</p>
-      <p>It's where real hip-hop culture, great craft beer and amazing music all come together.</p>
-      <p>If you love hip-hop, you'll love it out here!</p>
-      <p>Come join us!</p>
+<section class="section section--stripes">
+  <div class="container">
+    <div class="two-col">
+      <div class="calendar-photos stagger">
+        <div class="calendar-photo"><img src="assets/images/508548355_10236879386226487_1573770693427706600_n.jpg" alt="DJ at Crafts &amp; Crates" loading="lazy"></div>
+        <div class="calendar-photo"><img src="assets/images/508158788_10236844733840199_8109337779535725197_n.jpg" alt="DJ spinning vinyl at Crafts &amp; Crates" loading="lazy"></div>
+        <div class="calendar-photo"><img src="assets/images/508525785_10236879383706424_3570648505008321202_n.jpg" alt="DJ digging the crates at Crafts &amp; Crates" loading="lazy"></div>
+      </div>
+      <div class="two-col-text reveal reveal-delay-1">
+        <h2 class="section-title">Make Sure You Keep That Calendar Clear</h2>
+        <div class="divider"></div>
+        <p>Come catch the vibe at Crafts &amp; Crates!</p>
+        <p>It's where real hip-hop culture, great craft beer and amazing music all come together.</p>
+        <p>If you love hip-hop, you'll love it out here!</p>
+        <p>Come join us!</p>
+        <p>Follow <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" class="ig-handle">@craftsandcratesatl</a> on Instagram for updates.</p>
+      </div>
     </div>
-    <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener"
-       class="btn btn--outline reveal" style="margin-top: 28px;">Follow @craftsandcratesatl</a>
   </div>
 </section>
 
 <!-- ===== JB'S RECORD LOUNGE ===== -->
-<section class="section section--dark">
+<section class="section section--dark section--jbs">
   <div class="container">
-    <div class="two-col two-col--img-right">
+    <div class="two-col">
       <div class="two-col-text two-col-text--white reveal">
         <p class="section-kicker">Vinyl Pop-Up</p>
         <h2 class="section-title section-title--white">Resident Vinyl Popup:<br>JB's Record Lounge</h2>
         <div class="divider"></div>
         <p>The Crafts and Crates event is proud to feature JB's Record Lounge as the vinyl pop-up shop where they bring all their heat to Crafts &amp; Crates so we can get dibs on their vast collection of records and cassettes.</p>
+        <img src="assets/images/JBs.png" alt="JB's Record Lounge logo" class="jbs-logo">
+        <a href="https://jbsrecordlounge.com/" target="_blank" rel="noopener" class="btn btn--primary">Visit JB's Record Lounge Online</a>
       </div>
       <div class="two-col-img reveal reveal-delay-1">
-        <img src="assets/images/JBs.png" alt="JB's Record Lounge" class="img-rounded">
+        <div class="carousel-wrap" data-autoplay="true" data-interval="4500">
+          <div class="carousel">
+            <div class="carousel-track">
+              <div class="carousel-slide"><img src="assets/images/514784233_10237251023877196_473763709631540194_n.jpg" alt="JB's Record Lounge at Crafts &amp; Crates" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/492157477_10236086983856923_3865394557841903734_n.jpg" alt="Vinyl records at Crafts &amp; Crates" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/492153681_10236086983296909_8292614127735915667_n.jpg" alt="Vinyl records at Crafts &amp; Crates" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/493549392_10236086918975301_561258791243249037_n.jpg" alt="Vinyl records at Crafts &amp; Crates" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/509602419_10236956048102986_5612036842885296169_n.jpg" alt="Crafts &amp; Crates event" loading="lazy"></div>
+              <div class="carousel-slide"><img src="assets/images/492003335_10236086914775196_4853832039158951959_n.jpg" alt="Crafts &amp; Crates vinyl pop-up" loading="lazy"></div>
+            </div>
+          </div>
+          <button class="carousel-btn carousel-btn--prev" aria-label="Previous photo">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="carousel-btn carousel-btn--next" aria-label="Next photo">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="carousel-dots" aria-hidden="true"></div>
+        </div>
       </div>
-    </div>
-
-    <!-- Photo strip -->
-    <div class="photo-strip stagger" style="margin-top: 48px;">
-      <div class="photo-strip-item"><img src="assets/images/514784233_10237251023877196_473763709631540194_n.jpg" alt="JB's Record Lounge at Crafts &amp; Crates" loading="lazy"></div>
-      <div class="photo-strip-item"><img src="assets/images/492157477_10236086983856923_3865394557841903734_n.jpg" alt="Vinyl records at Crafts &amp; Crates" loading="lazy"></div>
-      <div class="photo-strip-item"><img src="assets/images/492153681_10236086983296909_8292614127735915667_n.jpg" alt="Vinyl records at Crafts &amp; Crates" loading="lazy"></div>
-      <div class="photo-strip-item"><img src="assets/images/493549392_10236086918975301_561258791243249037_n.jpg" alt="Vinyl records at Crafts &amp; Crates" loading="lazy"></div>
-      <div class="photo-strip-item"><img src="assets/images/509602419_10236956048102986_5612036842885296169_n.jpg" alt="Crafts &amp; Crates event" loading="lazy"></div>
-      <div class="photo-strip-item"><img src="assets/images/492003335_10236086914775196_4853832039158951959_n.jpg" alt="Crafts &amp; Crates vinyl pop-up" loading="lazy"></div>
     </div>
   </div>
 </section>
@@ -197,6 +221,7 @@
         <img src="assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL" style="height:44px;">
       </a>
       <nav class="footer-links" aria-label="Footer navigation">
+        <a href="about.html#team">Featured Artists</a>
         <a href="events.html">Previous Events</a>
         <a href="gallery.html">Gallery</a>
       </nav>
