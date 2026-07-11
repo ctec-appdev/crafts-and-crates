@@ -1,7 +1,7 @@
 # Crafts & Crates ATL — Static Site
 
 Static HTML/CSS/JS conversion of the WordPress site [craftsandcratesatl.com](https://craftsandcratesatl.com/),
-preserving the original layout, branding (Kadence palette, Staatliches headings), content, and images,
+preserving the original layout, branding (Kadence palette, Roboto headings), content, and images,
 with added scroll-reveal animations, a vanilla-JS carousel, and a full-screen lightbox.
 
 ## Structure
@@ -15,7 +15,7 @@ gallery.html          Full photo gallery (~470 images) with lightbox
 404.html              Not-found page
 assets/css/style.css  Shared stylesheet (responsive, prefers-reduced-motion aware)
 assets/js/main.js     Carousel, lightbox, mobile nav, scroll reveals (no dependencies)
-assets/fonts/         Vendored Staatliches webfont
+assets/fonts/         Vendored Roboto webfont
 assets/images/        All site images (flat; original filenames, size suffixes stripped)
 tools/generate.py     Regenerates events.html, gallery.html, events/*.html from scraped content dumps
 tools/check.py        Verifies all internal links and image references resolve

@@ -34,11 +34,11 @@
 
 /* --- Font face --- */
 @font-face {
-  font-family: 'Staatliches';
+  font-family: 'Roboto';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../fonts/Staatliches.woff2') format('woff2');
+  src: url('../fonts/Roboto.woff2') format('woff2');
 }
 
 /* --- Reset --- */
@@ -59,7 +59,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 
 /* --- Typography --- */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Staatliches', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   line-height: 1.05;
@@ -151,7 +151,7 @@ p:last-child { margin-bottom: 0; }
   display: inline-block;
   padding: 14px 36px;
   border-radius: var(--radius-full);
-  font-family: 'Staatliches', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 400;
   font-size: 1.1rem;
   letter-spacing: 0.1em;
@@ -247,7 +247,7 @@ p:last-child { margin-bottom: 0; }
 .site-nav { display: flex; align-items: center; gap: 4px; }
 .site-nav a {
   color: rgba(255,255,255,0.82);
-  font-family: 'Staatliches', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 400;
   font-size: 1.05rem;
   letter-spacing: 0.1em;
@@ -653,7 +653,7 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: 8px;
 }
 .event-card-title {
-  font-family: 'Staatliches', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 400;
   font-size: 1.2rem;
   text-transform: uppercase;
@@ -702,7 +702,7 @@ p:last-child { margin-bottom: 0; }
   color: var(--gray2);
 }
 .post-nav-title {
-  font-family: 'Staatliches', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 400;
   font-size: 1rem;
   text-transform: uppercase;
@@ -1080,7 +1080,7 @@ p:last-child { margin-bottom: 0; }
   padding: 60px 20px;
 }
 .not-found-code {
-  font-family: 'Staatliches', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 400;
   font-size: clamp(6rem, 20vw, 12rem);
   color: var(--orange);
@@ -1165,8 +1165,8 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: 16px;
 }
 .hero--split h1 {
-  font-family: 'Staatliches', sans-serif;
-  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 800;
   letter-spacing: 0.02em;
   font-size: clamp(3rem, 6.5vw, 5.2rem);
   color: var(--dark);
@@ -1192,7 +1192,7 @@ p:last-child { margin-bottom: 0; }
     linear-gradient(180deg, #d8d9dc 0%, #cbccd0 100%);
 }
 .venue-sign {
-  max-width: 320px;
+  max-width: 520px;
   margin: 4px 0 20px;
   box-shadow: var(--shadow);
 }
