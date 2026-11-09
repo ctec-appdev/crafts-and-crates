@@ -29,6 +29,8 @@
   --shadow-lg: 0 16px 56px rgba(0,0,0,0.35);
   --shadow-orange: 0 8px 32px rgba(228, 123, 2, 0.35);
   --gradient-orange: linear-gradient(135deg, #e47b02 0%, #f5951a 100%);
+  --gradient-btn: linear-gradient(135deg, #9a4e00 0%, #b85c00 100%);
+  --orange-text: #b85c00;
   --gradient-dark: linear-gradient(160deg, #161c24 0%, #1f2933 100%);
 }
 
@@ -36,9 +38,17 @@
 @font-face {
   font-family: 'Roboto';
   font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/Roboto-latin-var.woff2') format('woff2-variations');
+}
+
+@font-face {
+  font-family: 'Staatliches';
+  font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../fonts/Roboto.woff2') format('woff2');
+  src: url('../fonts/Staatliches.woff2') format('woff2');
 }
 
 /* --- Reset --- */
@@ -57,6 +67,10 @@ a { color: inherit; text-decoration: none; }
 ul { list-style: none; }
 button { cursor: pointer; border: none; background: none; font: inherit; }
 
+/* --- Browser-surface theming --- */
+::selection { background: var(--orange); color: var(--white); }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
 /* --- Typography --- */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Roboto', sans-serif;
@@ -66,12 +80,17 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.03em;
 }
 h1 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-family: 'Staatliches', cursive;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: normal;
+  line-height: 1.3;
+  font-size: clamp(40px, 5vw, 60px);
 }
-h2 { font-size: clamp(2rem, 4.5vw, 3.2rem); }
+h2 {
+  font-family: 'Staatliches', cursive;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+}
 h3 { font-size: clamp(1.5rem, 3vw, 2.2rem); }
 h4 { font-size: clamp(1.2rem, 2.5vw, 1.7rem); }
 h5 { font-size: clamp(1rem, 2vw, 1.4rem); }
@@ -108,11 +127,13 @@ p:last-child { margin-bottom: 0; }
   top: 0;
   left: 0;
   height: 3px;
-  width: 0%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
   background: var(--gradient-orange);
   z-index: 2000;
   box-shadow: 0 0 12px var(--orange-glow);
-  transition: width 0.1s linear;
+  transition: transform 0.1s linear;
 }
 
 /* =============================================
@@ -173,7 +194,7 @@ p:last-child { margin-bottom: 0; }
   to { transform: scale(4); opacity: 0; }
 }
 .btn--primary {
-  background: var(--gradient-orange);
+  background: var(--gradient-btn);
   color: var(--white);
   box-shadow: 0 4px 20px var(--orange-glow);
 }
@@ -247,7 +268,7 @@ p:last-child { margin-bottom: 0; }
 .site-nav { display: flex; align-items: center; gap: 4px; }
 .site-nav a {
   color: rgba(255,255,255,0.82);
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Staatliches', cursive;
   font-weight: 400;
   font-size: 1.05rem;
   letter-spacing: 0.1em;
@@ -270,7 +291,7 @@ p:last-child { margin-bottom: 0; }
 }
 .site-nav a:hover { color: var(--orange); }
 .site-nav a:hover::after { transform: scaleX(1); }
-.site-nav a.active { color: var(--orange); }
+.site-nav a.active { color: var(--white); }
 .site-nav a.active::after { transform: scaleX(1); }
 
 /* Social icons in header */
@@ -406,7 +427,7 @@ p:last-child { margin-bottom: 0; }
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--orange-text);
   background: rgba(228,123,2,0.1);
   border: 1px solid rgba(228,123,2,0.32);
   border-radius: var(--radius-full);
@@ -466,7 +487,7 @@ p:last-child { margin-bottom: 0; }
   font-weight: 700;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--orange-text);
   margin-bottom: 12px;
 }
 .section-title { margin-bottom: 20px; }
@@ -522,6 +543,7 @@ p:last-child { margin-bottom: 0; }
   .two-col { grid-template-columns: 1fr; gap: 32px; }
   .two-col--img-right .two-col-img { order: 1; }
   .two-col--img-right .two-col-text { order: 2; }
+  .halfway-crooks-image { justify-self: center; }
 }
 .two-col-img img {
   border-radius: var(--radius-lg);
@@ -530,6 +552,7 @@ p:last-child { margin-bottom: 0; }
   max-height: 440px;
   box-shadow: var(--shadow-lg);
 }
+.halfway-crooks-image { width: 70%; justify-self: end; }
 .two-col-text p { color: var(--gray); line-height: 1.78; }
 .two-col-text--white p { color: rgba(255,255,255,0.78); }
 
@@ -906,8 +929,13 @@ p:last-child { margin-bottom: 0; }
    ============================================= */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 80%;
+  margin: 0 auto;
   gap: 32px;
+}
+@media (max-width: 640px) {
+  .team-grid { grid-template-columns: 1fr; width: 100%; }
 }
 .team-card {
   background: var(--white);
@@ -1014,7 +1042,7 @@ p:last-child { margin-bottom: 0; }
   padding-top: 24px;
   text-align: center;
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.32);
+  color: rgba(255,255,255,0.58);
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -1091,27 +1119,6 @@ p:last-child { margin-bottom: 0; }
 .not-found p { color: rgba(255,255,255,0.58); margin-bottom: 36px; }
 
 /* =============================================
-   ABOUT PAGE
-   ============================================= */
-.about-hero {
-  background: var(--dark2);
-  padding: 80px 0;
-  text-align: center;
-  color: var(--white);
-  position: relative;
-  overflow: hidden;
-}
-.about-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 110%, rgba(228,123,2,0.08) 0%, transparent 65%);
-  pointer-events: none;
-}
-.about-hero h1 { color: var(--orange); margin-bottom: 16px; }
-.about-hero p { color: rgba(255,255,255,0.76); max-width: 680px; margin: 0 auto; line-height: 1.78; }
-
-/* =============================================
    DIVIDER
    ============================================= */
 .divider {
@@ -1136,18 +1143,24 @@ p:last-child { margin-bottom: 0; }
 
 /* =============================================
    SPLIT HERO (text left / carousel right)
+   on the shipping-container wall backdrop
    ============================================= */
-.hero--split,
-.section--stripes {
-  background:
-    repeating-linear-gradient(90deg,
-      #f5f5f7 0px, #f5f5f7 42px,
-      #ededf0 42px, #ededf0 84px);
-}
 .hero--split {
+  background:
+    linear-gradient(180deg,
+      rgba(190,194,200,0.82) 0%,
+      rgba(170,175,182,0.66) 45%,
+      rgba(146,151,158,0.88) 100%),
+    url('../images/container-wall.jpg') right center / cover no-repeat;
   min-height: 0;
   padding: 80px 0 96px;
 }
+.section--container {
+  background:
+    linear-gradient(rgba(178,183,190,0.8), rgba(150,155,162,0.88)),
+    url('../images/container-wall.jpg') 70% 35% / cover no-repeat;
+}
+.section--container p { color: var(--dark3); }
 .hero-grid {
   display: grid;
   grid-template-columns: 1.05fr 1fr;
@@ -1165,19 +1178,25 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: 16px;
 }
 .hero--split h1 {
-  font-family: 'Roboto', sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  font-size: clamp(3rem, 6.5vw, 5.2rem);
+  font-size: 104px;
+  line-height: 1em;
+  letter-spacing: normal;
   color: var(--dark);
 }
+@media (max-width: 1024px) {
+  .hero--split h1 { font-size: 64px; }
+}
+@media (max-width: 767px) {
+  .hero--split h1 { font-size: 40px; }
+}
 .hero--split p {
-  color: var(--gray);
+  color: var(--dark3);
   font-size: 1.02rem;
 }
 .hero-media .carousel-slide { aspect-ratio: 4/3; }
 .carousel-wrap--light .carousel-dot { background: rgba(22, 28, 36, 0.18); }
 .carousel-wrap--light .carousel-dot.active { background: var(--orange); }
+.hero-media .carousel-slide img { transform: scale(1.3); }
 @media (max-width: 860px) {
   .hero--split { padding: 56px 0 72px; }
   .hero-grid { grid-template-columns: 1fr; gap: 40px; }
@@ -1196,6 +1215,7 @@ p:last-child { margin-bottom: 0; }
   margin: 4px 0 20px;
   box-shadow: var(--shadow);
 }
+.section--concrete p, .section--concrete .venue-meta p { color: var(--dark3); }
 .venue-meta {
   display: flex;
   flex-direction: column;
@@ -1225,7 +1245,7 @@ p:last-child { margin-bottom: 0; }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.venue-meta h5 {
+.venue-meta dt {
   color: var(--dark2);
   font-size: 1rem;
   letter-spacing: 0.08em;
@@ -1260,6 +1280,10 @@ p:last-child { margin-bottom: 0; }
   z-index: 1;
 }
 .instagram-band .container { position: relative; z-index: 2; }
+.hero--split.instagram-band .hero-content { color: var(--white); }
+.hero--split.instagram-band h1 { color: var(--white); }
+.hero--split.instagram-band .hero-kicker { color: var(--orange); }
+.hero--split.instagram-band p { color: rgba(255,255,255,0.78); }
 .ig-handle { color: var(--orange); font-weight: 600; }
 .ig-handle:hover { text-decoration: underline; }
 .ig-mark {
@@ -1296,9 +1320,10 @@ p:last-child { margin-bottom: 0; }
 .calendar-photo img {
   width: 100%; height: 100%;
   object-fit: cover;
+  transform: scale(1.3);
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.calendar-photo:hover img { transform: scale(1.05); }
+.calendar-photo:hover img { transform: scale(1.365); }
 
 /* =============================================
    JB'S RECORD LOUNGE

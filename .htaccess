@@ -1,0 +1,94 @@
+# crafts-and-cratesatl.com — static site (WordPress replacement)
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Canonical host: force https + apex (matches WP-era canonical form)
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://craftsandcratesatl.com%{REQUEST_URI} [R=301,L]
+
+# 301: legacy WordPress URLs -> static structure
+RewriteRule ^blog/?$ /events.html [R=301,L]
+RewriteRule ^event\-info/?$ /gallery.html [R=301,L]
+RewriteRule ^about\-crafts\-and\-crates\-hip\-hop\-event/?$ /about.html [R=301,L]
+RewriteRule ^contact/?$ /about.html [R=301,L]
+RewriteRule ^faq/?$ /about.html [R=301,L]
+RewriteRule ^august\-26\-crafts\-and\-crates/?$ /events/august-26-crafts-crates.html [R=301,L]
+RewriteRule ^april\-24\-crafts\-and\-crates/?$ /events/april-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^april\-25\-crafts\-and\-crates/?$ /events/april-25-crafts-and-crates.html [R=301,L]
+RewriteRule ^april\-26\-crafts\-crates/?$ /events/april-26-crafts-crates.html [R=301,L]
+RewriteRule ^atl\-underground\-reunion\-10\-18/?$ /events/atl-underground-reunion-10-18.html [R=301,L]
+RewriteRule ^august\-23\-crafts\-and\-crates/?$ /events/august-23-crafts-and-crates.html [R=301,L]
+RewriteRule ^august\-24\-crafts\-and\-crates/?$ /events/august-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^august\-25\-crafts\-crates/?$ /events/august-25-crafts-crates.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-36\-chambers\-wu\-tang\-tribute/?$ /events/crafts-and-crates-presents-36-chambers-wu-tang-tribute.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-all\-hail\-the\-queens/?$ /events/crafts-and-crates-presents-all-hail-the-queens.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-diamond\-d/?$ /events/crafts-and-crates-presents-diamond-d.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-dj\-premier\-vs\-pete\-rock/?$ /events/crafts-and-crates-presents-dj-premier-vs-pete-rock.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-doomsday/?$ /events/crafts-and-crates-presents-doomsday.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-fantastic\-dilla\-tribute/?$ /events/crafts-and-crates-presents-fantastic-dilla-tribute.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-shook\-ones/?$ /events/crafts-and-crates-presents-shook-ones.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-the\-almighty\-griselda/?$ /events/crafts-and-crates-presents-the-almighty-griselda.html [R=301,L]
+RewriteRule ^crafts\-and\-crates\-presents\-vibes\-and\-stuff/?$ /events/crafts-and-crates-presents-vibes-and-stuff.html [R=301,L]
+RewriteRule ^december\-23\-crafts\-and\-crates/?$ /events/december-23-crafts-and-crates.html [R=301,L]
+RewriteRule ^december\-25\-crafts\-and\-crates/?$ /events/december-25-crafts-and-crates.html [R=301,L]
+RewriteRule ^february\-26\-crafts\-crates/?$ /events/february-26-crafts-crates.html [R=301,L]
+RewriteRule ^january\-26\-crafts\-crates/?$ /events/january-26-crafts-crates.html [R=301,L]
+RewriteRule ^july\-23\-crafts\-and\-crates/?$ /events/july-23-crafts-and-crates.html [R=301,L]
+RewriteRule ^july\-24\-crafts\-and\-crates/?$ /events/july-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^june\-24\-crafts\-and\-crates/?$ /events/june-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^june\-25\-crafts\-and\-crates/?$ /events/june-25-crafts-and-crates.html [R=301,L]
+RewriteRule ^march\-24\-crafts\-and\-crates/?$ /events/march-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^march\-25\-crafts\-crates\-jax\-tribute/?$ /events/march-25-crafts-crates-jax-tribute.html [R=301,L]
+RewriteRule ^march\-26\-crafts\-crates/?$ /events/march-26-crafts-crates.html [R=301,L]
+RewriteRule ^may\-24\-crafts\-and\-crates/?$ /events/may-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^may\-26\-crafts\-crates/?$ /events/may-26-crafts-crates.html [R=301,L]
+RewriteRule ^november\-23\-crafts\-and\-crates/?$ /events/november-23-crafts-and-crates.html [R=301,L]
+RewriteRule ^november\-24\-crafts\-and\-crates/?$ /events/november-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^november\-25\-crafts\-crates/?$ /events/november-25-crafts-crates.html [R=301,L]
+RewriteRule ^october\-23\-crafts\-and\-crates\-reunion\-edition/?$ /events/october-23-crafts-and-crates-reunion-edition.html [R=301,L]
+RewriteRule ^october\-24\-crafts\-and\-crates\-reunion\-edition/?$ /events/october-24-crafts-and-crates-reunion-edition.html [R=301,L]
+RewriteRule ^september\-23\-crafts\-and\-crates/?$ /events/september-23-crafts-and-crates.html [R=301,L]
+RewriteRule ^september\-24\-crafts\-and\-crates/?$ /events/september-24-crafts-and-crates.html [R=301,L]
+RewriteRule ^september\-25\-crafts\-and\-crates/?$ /events/september-25-crafts-and-crates.html [R=301,L]
+RewriteRule ^september\-26\-crafts\-crates/?$ /events/september-26-crafts-crates.html [R=301,L]
+
+# Pretty URL niceties (strip .html when the extension was omitted)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteCond %{THE_REQUEST} \s/[^? ]*\.html
+RewriteCond %{REQUEST_URI} (.+)\.html$
+RewriteRule ^ %1 [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^?]*)$ $1.html [L]
+</IfModule>
+
+ErrorDocument 404 /404.html
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType text/html "access plus 1 hour"
+ExpiresByType text/css "access plus 1 hour"
+ExpiresByType application/javascript "access plus 1 hour"
+ExpiresByType image/jpeg "access plus 1 year"
+ExpiresByType image/png "access plus 1 year"
+ExpiresByType image/gif "access plus 1 year"
+ExpiresByType image/webp "access plus 1 year"
+ExpiresByType image/svg+xml "access plus 1 year"
+ExpiresByType font/woff2 "access plus 1 year"
+ExpiresByType font/woff "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+<FilesMatch "\.(jpe?g|png|gif|webp|svg|woff2?|ttf)$">
+Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "\.(html|css|js)$">
+Header set Cache-Control "public, max-age=3600"
+</FilesMatch>
+</IfModule>

@@ -1,0 +1,285 @@
+/* =============================================================
+   Crafts & Crates ATL — experience.html (scroll narrative)
+   Content-first: every rule below leaves copy visible with JS off.
+   Motion-only states are gated behind body.motion-on, which is
+   added by assets/js/experience.js ONLY after GSAP confirms
+   loaded + prefers-reduced-motion is not set.
+   ============================================================= */
+
+/* Pinned sections + browser smooth scroll fight until the page
+   scroll jams — keep native (instant) scroll on this page. */
+html { scroll-behavior: auto; }
+
+/* --- shared atoms --- */
+.x-kicker {
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 14px;
+}
+.x-lede {
+  max-width: 720px;
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: var(--gray);
+  margin-top: 18px;
+}
+.x-footnote {
+  margin-top: 28px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray2);
+}
+.btn--ghost {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  color: var(--white);
+}
+.btn--ghost:hover { border-color: var(--orange); color: var(--orange); background: rgba(255,255,255,0.04); }
+
+/* Hidden-from state used by the reveal batch. Applies ONLY once
+   JS has confirmed GSAP is live (body.motion-on). */
+.motion-on .x-reveal { opacity: 0; transform: translateY(28px); }
+
+/* =============================================================
+   HOOK
+   ============================================================= */
+.x-hero {
+  position: relative;
+  height: calc(100vh - var(--header-h));
+  min-height: 560px;
+  overflow: hidden;                       /* clips the 12% layer overhang */
+  background: var(--dark);
+  display: flex;
+  align-items: center;
+  color: var(--white);
+}
+.x-hero-media { position: absolute; inset: -12% 0; z-index: 0; }
+.x-hero-media img { width: 100%; height: 100%; object-fit: cover; }
+.x-hero-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(22,28,36,0.62) 0%, rgba(22,28,36,0.28) 45%, rgba(22,28,36,0.94) 100%);
+}
+.x-hero-content { position: relative; z-index: 1; padding-top: 24px; }
+.x-hero-title {
+  font-family: 'Staatliches', cursive;
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 104px;
+  line-height: 1em;
+  letter-spacing: normal;
+  color: var(--white);
+}
+@media (max-width: 1024px) {
+  .x-hero-title { font-size: 64px; }
+}
+@media (max-width: 767px) {
+  .x-hero-title { font-size: 40px; }
+}
+.x-hero-sub {
+  max-width: 580px;
+  margin-top: 22px;
+  font-size: 1.06rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.88);
+}
+.x-hero .btn-group { margin-top: 30px; }
+
+.x-scroll-cue {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+.x-scroll-cue svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  animation: x-bob 1.7s ease-in-out infinite;
+}
+@keyframes x-bob {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50%      { transform: translateY(6px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .x-scroll-cue svg { animation: none; } }
+
+/* =============================================================
+   CONTEXT — the ritual
+   ============================================================= */
+.x-ritual { background: var(--light2); }
+.x-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 44px;
+}
+.x-stat {
+  background: var(--white);
+  border: 1px solid rgba(31, 41, 51, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 34px 30px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+.x-stat-num {
+  display: block;
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+  font-size: clamp(2.4rem, 4.5vw, 3.4rem);
+  font-weight: 800;
+  color: var(--orange);
+  line-height: 1;
+}
+.x-stat-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.92rem;
+  color: var(--gray);
+}
+
+/* =============================================================
+   JOURNEY — filmstrip. Base layout is a simple stacked column
+   that works for everyone; the pinned horizontal machinery exists
+   only for desktop AND body.motion-on (JS live).
+   ============================================================= */
+.x-journey { overflow: hidden; }
+.x-pinwrap { position: relative; margin-top: 44px; }
+.x-track { display: flex; flex-direction: column; gap: 30px; padding: 0 24px; }
+.x-panel { min-width: 0; }
+.x-panel img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+.x-panel figcaption {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray2);
+}
+.x-rail { display: none; }
+
+@media (min-width: 1024px) {
+  .motion-on .x-pinwrap {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .motion-on .x-track {
+    flex-direction: row;
+    align-items: center;
+    gap: 4vw;
+    padding: 0 8vw;
+    width: max-content;
+    will-change: transform;
+  }
+  .motion-on .x-panel { flex: 0 0 auto; }
+  .motion-on .x-panel img {
+    height: 58vh;
+    width: auto;
+    max-width: none;
+  }
+  .motion-on .x-rail {
+    display: block;
+    position: absolute;
+    bottom: 5vh;
+    left: 8vw;
+    right: 8vw;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.14);
+  }
+  .motion-on .x-rail-bar {
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background: var(--orange);
+  }
+}
+
+/* =============================================================
+   CLIMAX — stacked statement over full-bleed photo
+   ============================================================= */
+.x-climax {
+  position: relative;
+  overflow: hidden;                        /* clips the 12% layer overhang */
+  background: var(--dark);
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 96px 24px;
+  color: var(--white);
+  text-align: center;
+}
+.x-climax-media { position: absolute; inset: -12% 0; z-index: 0; }
+.x-climax-media img { width: 100%; height: 100%; object-fit: cover; }
+.x-climax-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(22, 28, 36, 0.78);
+}
+.x-climax-lines { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; }
+.x-climax-line {
+  font-size: clamp(2.2rem, 6.5vw, 4.6rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.08;
+}
+.x-climax-line--accent { color: var(--orange); }
+
+@media (min-width: 1024px) {
+  .motion-on .x-climax { height: 100vh; min-height: 0; padding: 0; }
+  .motion-on .x-climax-lines { position: absolute; inset: 0; }
+  .motion-on .x-climax-line {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6vw;
+  }
+}
+
+/* =============================================================
+   RESOLUTION — pull up
+   ============================================================= */
+.x-close { background: var(--white); }
+.x-close-inner { text-align: center; }
+.x-close-inner .divider { margin-left: auto; margin-right: auto; }
+.x-close .venue-meta {
+  max-width: 520px;
+  margin: 30px auto 0;
+  text-align: left;
+}
+.x-btn-group { margin-top: 30px; justify-content: center; }
+
+/* =============================================================
+   Mobile tuning
+   ============================================================= */
+@media (max-width: 760px) {
+  .x-stat-grid { grid-template-columns: 1fr; }
+  .x-hero { min-height: 520px; }
+}

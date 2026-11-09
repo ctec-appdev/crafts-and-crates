@@ -9,7 +9,7 @@ import os
 import re
 import sys
 from datetime import datetime
-from html import escape
+from html import escape, unescape
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -124,9 +124,97 @@ CHEVRON_RIGHT = """<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/><
 ARROW_RIGHT = """<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>"""
 
 
-def html_header(title: str, desc: str, depth: int = 0) -> str:
+# ---------------------------------------------------------------------------
+# SEO head block — keep in sync with tools/seo.py
+# ---------------------------------------------------------------------------
+SITE_URL = "https://craftsandcratesatl.com"
+
+
+def _iso_date(date_fmt: str) -> str | None:
+    try:
+        return datetime.strptime(date_fmt, "%B %d, %Y").date().isoformat()
+    except ValueError:
+        return None
+
+
+def _seo_head(rel_path: str, title: str, desc: str, og_image: str | None = None,
+              event_start: str | None = None) -> str:
+    """Canonical + Open Graph + optional Event JSON-LD, mirroring tools/seo.py."""
+    canonical = f"{SITE_URL}/" if rel_path == "index.html" else f"{SITE_URL}/{rel_path}"
+    og_img_url = f"{SITE_URL}/assets/images/{og_image}" if og_image else f"{SITE_URL}/assets/images/IMG_9508.jpg"
+    title_txt = unescape(title) or "Crafts & Crates ATL"
+    desc_txt = unescape(desc) or "Live hip-hop events in Atlanta's Summerhill."
+    is_event = rel_path.startswith("events/") and rel_path != "events.html"
+
+    lines = [
+        "<!-- seo.py -->",
+        f'  <link rel="canonical" href="{canonical}">',
+        '  <meta property="og:site_name" content="Crafts &amp; Crates ATL">',
+        f'  <meta property="og:type" content="{"article" if is_event else "website"}">',
+        f'  <meta property="og:title" content="{title}">',
+        f'  <meta property="og:description" content="{desc}">',
+        f'  <meta property="og:url" content="{canonical}">',
+        f'  <meta property="og:image" content="{og_img_url}">',
+        f'  <meta property="og:image:alt" content="{title}">',
+        '  <meta name="twitter:card" content="summary_large_image">',
+    ]
+
+    scripts = []
+    if event_start and is_event:
+        scripts.append(json.dumps({
+            "@context": "https://schema.org",
+            "@type": "Event",
+            "name": title_txt,
+            "description": desc_txt,
+            "startDate": event_start,
+            "endDate": event_start,
+            "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+            "location": {
+                "@type": "Place",
+                "name": "Halfway Crooks Biergarten",
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "640 Reed St. SE",
+                    "addressLocality": "Atlanta",
+                    "addressRegion": "GA",
+                    "postalCode": "30312",
+                    "addressCountry": "US",
+                },
+            },
+            "image": [og_img_url],
+            "url": canonical,
+            "organizer": {"@type": "Organization", "name": "Crafts & Crates ATL", "url": SITE_URL},
+        }, ensure_ascii=False))
+        scripts.append(json.dumps({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": f"{SITE_URL}/"},
+                {"@type": "ListItem", "position": 2, "name": "Events", "item": f"{SITE_URL}/events.html"},
+                {"@type": "ListItem", "position": 3, "name": title_txt},
+            ],
+        }, ensure_ascii=False))
+    elif rel_path != "index.html":
+        crumb = [{"@type": "ListItem", "position": 1, "name": "Home", "item": f"{SITE_URL}/"}]
+        if rel_path.startswith("events/"):
+            crumb.append({"@type": "ListItem", "position": 2, "name": "Events", "item": f"{SITE_URL}/events.html"})
+        crumb.append({"@type": "ListItem", "position": len(crumb) + 1, "name": title_txt})
+        scripts.append(json.dumps({"@context": "https://schema.org", "@type": "BreadcrumbList",
+                                   "itemListElement": crumb}, ensure_ascii=False))
+
+    for s in scripts:
+        lines.append('  <script type="application/ld+json">')
+        lines.append("  " + s)
+        lines.append("  </script>")
+    lines.append("<!-- /seo.py -->")
+    return "\n".join(lines) + "\n"
+
+
+def html_header(title: str, desc: str, depth: int = 0, rel_path: str = "",
+                og_image: str | None = None, event_start: str | None = None) -> str:
     """depth=0 for root pages, depth=1 for events/ subpages."""
     pre = "../" * depth
+    seo = _seo_head(rel_path, title, desc, og_image, event_start)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,7 +223,7 @@ def html_header(title: str, desc: str, depth: int = 0) -> str:
   <title>{title}</title>
   <meta name="description" content="{desc}">
   <link rel="icon" type="image/png" href="{pre}assets/images/cropped-CC_Logo.png">
-  <link rel="stylesheet" href="{pre}assets/css/style.css">
+  {seo}<link rel="stylesheet" href="{pre}assets/css/style.css">
 </head>
 <body>
 """
@@ -274,7 +362,8 @@ def generate_events(events: list, warnings: list):
     html = html_header(
         "Previous Events – Crafts &amp; Crates ATL",
         "Browse all previous Crafts &amp; Crates ATL hip-hop events at Halfway Crooks Biergarten in Summerhill, Atlanta.",
-        depth=0
+        depth=0,
+        rel_path="events.html",
     )
     html += site_header(0)
     html += """
@@ -440,7 +529,10 @@ def generate_post(evt: dict, idx: int, events: list, warnings: list):
     html = html_header(
         f"{title_esc} – Crafts &amp; Crates ATL",
         f"{title_esc} at Halfway Crooks Biergarten — Crafts &amp; Crates ATL hip-hop event.",
-        depth=1
+        depth=1,
+        rel_path=f"events/{slug}.html",
+        og_image=flyer_local or None,
+        event_start=_iso_date(date_fmt),
     )
     html += site_header(1)
 
@@ -538,7 +630,8 @@ def generate_gallery(warnings: list):
     html = html_header(
         "Gallery – Crafts &amp; Crates ATL",
         "Photo gallery from Crafts &amp; Crates ATL hip-hop events at Halfway Crooks Biergarten in Summerhill.",
-        depth=0
+        depth=0,
+        rel_path="gallery.html",
     )
     html += site_header(0)
     html += f"""
