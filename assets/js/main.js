@@ -229,16 +229,26 @@
   function initHeroParallax() {
     if (reducedMotion) return;
     var heroBg = document.querySelector('.hero-bg');
-    if (!heroBg) return;
+    var homepageHero = document.querySelector('.hero--split.instagram-band');
+    if (!heroBg && !homepageHero) return;
 
     window.addEventListener('scroll', function () {
       var scrollY = window.scrollY;
-      var heroEl = heroBg.closest('.hero');
-      if (!heroEl) return;
-      var heroH = heroEl.offsetHeight;
-      if (scrollY > heroH) return;
-      var pct = scrollY / heroH;
-      heroBg.style.transform = 'scale(1.08) translateY(' + (pct * 30) + 'px)';
+      if (heroBg) {
+        var heroEl = heroBg.closest('.hero');
+        if (heroEl) {
+          var heroH = heroEl.offsetHeight;
+          if (scrollY <= heroH) {
+            var pct = scrollY / heroH;
+            heroBg.style.transform = 'scale(1.08) translateY(' + (pct * 30) + 'px)';
+          }
+        }
+      }
+      if (homepageHero) {
+        var heroTop = homepageHero.getBoundingClientRect().top + scrollY;
+        var offset = Math.max(0, Math.min(120, (scrollY - heroTop) * 0.2));
+        homepageHero.style.setProperty('--hero-parallax-offset', offset + 'px');
+      }
     }, { passive: true });
   }
 
