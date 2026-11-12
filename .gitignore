@@ -1,0 +1,4 @@
+# Local tooling / OS clutter — never deploy or track
+.impeccable/
+.DS_Store
+*.DS_Store

@@ -10,7 +10,7 @@ deployment:
     - /bin/mkdir -p "$DEPLOYPATH"
     # Replace WordPress in the docroot (rsync --delete removes wp-* files),
     # while preserving the SSL-verified .well-known directory.
-    - /usr/bin/rsync -a --delete --exclude ".git/" --exclude ".github/" --exclude ".cpanel.yml" --exclude ".gitignore" --exclude ".claude/" --exclude ".DS_Store" --exclude "tools/" --exclude "*.md" --exclude ".well-known/" ./ "$DEPLOYPATH"
+    - /usr/bin/rsync -a --delete --exclude ".git/" --exclude ".github/" --exclude ".cpanel.yml" --exclude ".gitignore" --exclude ".claude/" --exclude ".DS_Store" --exclude "tools/" --exclude "*.md" --exclude ".well-known/" --exclude ".impeccable/" ./ "$DEPLOYPATH"
     - /usr/bin/find "$DEPLOYPATH" -type d -exec /bin/chmod 755 {} \;
     - /usr/bin/find "$DEPLOYPATH" -type f -exec /bin/chmod 644 {} \;
     - /usr/local/cpanel/3rdparty/bin/git rev-parse HEAD > "${DEPLOYPATH}.deployment-revision"
