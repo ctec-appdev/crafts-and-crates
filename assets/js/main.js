@@ -130,7 +130,9 @@
     var prevBtn = el.querySelector('.carousel-btn--prev');
     var nextBtn = el.querySelector('.carousel-btn--next');
     var dotsWrap = el.querySelector('.carousel-dots');
+    var pauseBtn = el.querySelector('.carousel-autoplay-toggle');
     var autoplay = el.dataset.autoplay !== 'false';
+    var isPaused = false;
     var interval = parseInt(el.dataset.interval || '4500', 10);
     var current = 0;
     var timer = null;
@@ -184,11 +186,21 @@
     });
 
     function startTimer() {
-      if (!autoplay || reducedMotion) return;
+      if (!autoplay || isPaused || reducedMotion) return;
+      clearInterval(timer);
       timer = setInterval(next, interval);
     }
     function resetTimer() { clearInterval(timer); startTimer(); }
 
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', function () {
+        isPaused = !isPaused;
+        pauseBtn.textContent = isPaused ? 'Play slideshow' : 'Pause slideshow';
+        pauseBtn.setAttribute('aria-pressed', String(isPaused));
+        clearInterval(timer);
+        if (!isPaused) startTimer();
+      });
+    }
     el.addEventListener('mouseenter', function () { clearInterval(timer); });
     el.addEventListener('mouseleave', startTimer);
     startTimer();
@@ -363,7 +375,10 @@
       document.querySelectorAll('.gallery-item').forEach(function (item) {
         var img = item.querySelector('img');
         if (!img) return;
-        item.addEventListener('click', function () {
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('role', 'button');
+        item.setAttribute('aria-label', 'Open image: ' + (img.alt || 'Crafts & Crates event photo'));
+        function activate() {
           var gallery = item.closest('.gallery-grid, .post-gallery');
           var imgs;
           if (gallery) {
@@ -377,6 +392,13 @@
             ? Array.from(gallery.querySelectorAll('.gallery-item')).indexOf(item)
             : 0;
           open(idx, imgs, item);
+        }
+        item.addEventListener('click', activate);
+        item.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            activate();
+          }
         });
       });
     }

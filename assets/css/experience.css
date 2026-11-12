@@ -17,7 +17,7 @@ html { scroll-behavior: auto; }
   font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: #aa4c00;
   margin-bottom: 14px;
 }
 .x-lede {
@@ -32,7 +32,7 @@ html { scroll-behavior: auto; }
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--gray2);
+  color: var(--dark3);
 }
 .btn--ghost {
   background: transparent;
@@ -67,6 +67,7 @@ html { scroll-behavior: auto; }
   background: linear-gradient(180deg, rgba(22,28,36,0.62) 0%, rgba(22,28,36,0.28) 45%, rgba(22,28,36,0.94) 100%);
 }
 .x-hero-content { position: relative; z-index: 1; padding-top: 24px; }
+.x-hero .x-kicker { color: var(--orange); }
 .x-hero-title {
   font-family: 'Staatliches', cursive;
   font-weight: 400;
@@ -144,7 +145,7 @@ html { scroll-behavior: auto; }
   font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
   font-size: clamp(2.4rem, 4.5vw, 3.4rem);
   font-weight: 800;
-  color: var(--orange);
+  color: #aa4c00;
   line-height: 1;
 }
 .x-stat-label {
@@ -174,7 +175,7 @@ html { scroll-behavior: auto; }
   font-size: 0.82rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--gray2);
+  color: var(--dark3);
 }
 .x-rail { display: none; }
 

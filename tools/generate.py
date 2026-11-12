@@ -16,7 +16,7 @@ from pathlib import Path
 # Paths
 # ---------------------------------------------------------------------------
 REPO = Path(__file__).resolve().parent.parent
-SCRATCHPAD = Path("/private/tmp/claude-501/-Users-ctec-Documents-Github-crafts-and-crates/508a7e3f-50c8-4d92-9fe9-7ba68a3b070f/scratchpad")
+SCRATCHPAD = Path(os.environ.get("CRAFTS_CRATES_SOURCE", REPO / "tools" / "source"))
 CONTENT_DIR = SCRATCHPAD / "content"
 EVENTS_JSON = SCRATCHPAD / "events.json"
 IMAGES_DIR = REPO / "assets" / "images"
@@ -233,9 +233,11 @@ def site_header(depth: int = 0) -> str:
     pre = "../" * depth
     return f"""<header class="site-header">
   <div class="header-inner">
-    <a class="logo" href="{pre}index.html" aria-label="Crafts &amp; Crates ATL &#8211; Home">
-      <img src="{pre}assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL">
-    </a>
+    <div class="logo-wrap">
+      <a class="logo" href="{pre}index.html" aria-label="Crafts &amp; Crates ATL &#8211; Home">
+        <img src="{pre}assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL">
+      </a>
+    </div>
     <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -279,7 +281,7 @@ def site_footer(depth: int = 0) -> str:
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Crafts &amp; Crates ATL. Website by CTEC Web Design.</p>
+      <p>&copy; 2026 Crafts &amp; Crates ATL. Website by <a href="https://ctecwebdesign.com/" target="_blank" rel="noopener noreferrer">CTEC Web Design</a>.</p>
     </div>
   </div>
 </footer>
@@ -611,8 +613,8 @@ def generate_post(evt: dict, idx: int, events: list, warnings: list):
 # Generate gallery.html
 # ---------------------------------------------------------------------------
 
-def generate_gallery(warnings: list):
-    items = parse_content(CONTENT_DIR / "event-info.txt")
+def generate_gallery(warnings: list, source_items=None):
+    items = parse_content(CONTENT_DIR / "event-info.txt") if source_items is None else source_items
 
     seen = set()
     imgs = []
@@ -636,17 +638,17 @@ def generate_gallery(warnings: list):
     html += site_header(0)
     html += f"""
 <main>
-  <section class="section">
+  <section class="section gallery-concrete-bg">
     <div class="container">
       <p class="section-kicker">Photos</p>
       <h1 class="reveal">Gallery</h1>
       <div class="divider"></div>
-      <p class="section-intro reveal">{len(imgs)} photos from Crafts &amp; Crates ATL events.</p>
+      <p class="section-intro section-intro--light reveal">{len(imgs)} photos from Crafts &amp; Crates ATL events.</p>
       <div class="gallery-grid">
 """
     for local, alt in imgs:
         src = img_path_from_root(local)
-        alt_safe = escape(alt) if alt else "Crafts &amp; Crates ATL event photo"
+        alt_safe = escape(unescape(alt)) if alt else "Crafts &amp; Crates ATL event photo"
         html += f'        <div class="gallery-item"><img src="{src}" alt="{alt_safe}" loading="lazy"></div>\n'
 
     html += """      </div>
@@ -667,24 +669,75 @@ def generate_gallery(warnings: list):
 # Main
 # ---------------------------------------------------------------------------
 
-def main():
-    if not EVENTS_JSON.exists():
-        print(f"ERROR: events.json not found at {EVENTS_JSON}", file=sys.stderr)
-        sys.exit(1)
+def gallery_items_from_existing_page():
+    """Read checked-in gallery images as the reproducible source when exports are absent."""
+    html = (REPO / "gallery.html").read_text(encoding="utf-8")
+    grid = re.search(r'<div class="gallery-grid">(.*?)</div>\s*</div>\s*</section>', html, re.S)
+    if not grid:
+        return []
+    return [("IMG", f"https://source.invalid/{src} (alt: {alt})")
+            for src, alt in re.findall(r'<img src="(?:\.\./)?assets/images/([^\"]+)" alt="([^\"]*)"', grid.group(1))]
 
-    events = json.loads(EVENTS_JSON.read_text(encoding="utf-8"))
+
+def events_from_existing_pages():
+    """Build archive records from checked-in pages when source exports are absent."""
+    events = []
+    date_re = re.compile(r'<p class="post-date">([^<]+)</p>')
+    title_re = re.compile(r'<h1[^>]*>(.*?)</h1>', re.S)
+    image_re = re.compile(r'<div class="post-flyer[^>]*>\s*<img[^>]+src="[^\"]*/?assets/images/([^\"]+)"', re.S)
+    for path in sorted(OUTPUT_EVENTS_DIR.glob("*.html")):
+        html = path.read_text(encoding="utf-8")
+        title_match, date_match = title_re.search(html), date_re.search(html)
+        if not title_match or not date_match:
+            continue
+        title = re.sub(r"<[^>]+>", "", title_match.group(1)).strip()
+        date_text = unescape(date_match.group(1).strip())
+        try:
+            event_date = datetime.strptime(date_text, "%B %d, %Y").date().isoformat()
+        except ValueError:
+            continue
+        image_match = image_re.search(html)
+        events.append({"slug": path.stem, "title": unescape(title), "date": event_date,
+                       "flyer": image_match.group(1) if image_match else ""})
+    return sorted(events, key=lambda event: event["date"], reverse=True)
+
+
+def main():
+    source_available = EVENTS_JSON.exists()
+    if source_available:
+        events = json.loads(EVENTS_JSON.read_text(encoding="utf-8"))
+        known_slugs = {event["slug"] for event in events}
+        events.extend(event for event in events_from_existing_pages() if event["slug"] not in known_slugs)
+        events.sort(key=lambda event: event["date"], reverse=True)
+    else:
+        events = events_from_existing_pages()
+    if not events:
+        print(f"ERROR: no events in {EVENTS_JSON} or checked-in event pages", file=sys.stderr)
+        sys.exit(1)
     warnings = []
 
-    print(f"Generating {len(events)} event pages...")
-    for idx, evt in enumerate(events):
-        out = generate_post(evt, idx, events, warnings)
-        print(f"  [{idx+1:02d}/{len(events)}] {out.relative_to(REPO)}")
+    print(f"Generating archive for {len(events)} events...")
+    if source_available:
+        for idx, evt in enumerate(events):
+            existing_page = OUTPUT_EVENTS_DIR / f"{evt['slug']}.html"
+            if existing_page.exists() and not (CONTENT_DIR / f"{evt['slug']}.txt").exists():
+                print(f"  Preserving manual page without an exported content file: {existing_page.name}")
+                continue
+            out = generate_post(evt, idx, events, warnings)
+            print(f"  [{idx+1:02d}/{len(events)}] {out.relative_to(REPO)}")
+    else:
+        print("  Event source export missing; preserving checked-in event detail pages.")
 
     print("\nGenerating events.html...")
     generate_events(events, warnings)
 
-    print("\nGenerating gallery.html...")
-    count = generate_gallery(warnings)
+    if source_available and (CONTENT_DIR / "event-info.txt").exists():
+        print("\\nGenerating gallery.html...")
+        count = generate_gallery(warnings)
+    else:
+        gallery_items = gallery_items_from_existing_page()
+        print("\\nGenerating gallery.html from its checked-in image list...")
+        count = generate_gallery(warnings, gallery_items)
     print(f"  Gallery: {count} unique images")
 
     if warnings:
