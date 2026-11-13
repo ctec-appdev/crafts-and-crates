@@ -6,7 +6,7 @@
 # docroot cPanel shows for the domain under Domains, then Deploy.
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/ctecreative/public_html/crafts-and-crates/
+    - export DEPLOYPATH=/home/ctecreat/public_html/crafts-and-crates/
     - /bin/mkdir -p "$DEPLOYPATH"
     # Replace WordPress in the docroot (rsync --delete removes wp-* files),
     # while preserving the SSL-verified .well-known directory.
