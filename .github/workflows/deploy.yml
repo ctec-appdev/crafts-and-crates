@@ -1,0 +1,78 @@
+name: Check and deploy site
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CPANEL_HOST: fl-s1.serverpanel.com
+      CPANEL_USER: ctecreat
+      CPANEL_REPOSITORY_ROOT: /home/ctecreat/public_html/crafts-and-crates
+      CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check site
+        run: |
+          set -euo pipefail
+          python3 tools/check.py
+          node --check assets/js/main.js
+          node --check assets/js/events.js
+      - name: Update production repository
+        run: |
+          set -euo pipefail
+          if [ -z "$CPANEL_API_TOKEN" ]; then
+            echo '::error::Set the CPANEL_API_TOKEN repository secret in GitHub Actions settings.'
+            exit 1
+          fi
+          result="$(mktemp)"
+          trap 'rm -f "$result"' EXIT
+          curl --fail-with-body --silent --show-error --max-time 90 \
+            --output "$result" --request POST \
+            --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
+            --data-urlencode "repository_root=${CPANEL_REPOSITORY_ROOT}" \
+            --data-urlencode 'branch=master' \
+            "https://${CPANEL_HOST}:2083/execute/VersionControl/update"
+          if ! jq -e '(.result // .) | .status == 1' "$result" >/dev/null; then
+            echo '::error::cPanel did not confirm a successful repository update.'
+            jq -r '(.result // .).errors[]? // empty' "$result" 2>/dev/null || true
+            exit 1
+          fi
+          echo 'cPanel confirmed the repository update.'
+      # The cPanel clone is the document root. Updating the clone publishes it;
+      # running .cpanel.yml would rsync the directory onto itself.
+      - name: Verify deployed files
+        run: |
+          set -euo pipefail
+          for attempt in {1..18}; do
+            ok=1
+            for file in index.html assets/css/style.css assets/js/main.js; do
+              remote="$(mktemp)"
+              if ! curl --fail --silent --show-error --max-time 20 \
+                --header 'Cache-Control: no-cache' \
+                "https://craftsandcratesatl.com/${file}?deploy=${GITHUB_SHA}" -o "$remote" || \
+                ! cmp -s "$file" "$remote"; then
+                ok=0
+              fi
+              rm -f "$remote"
+            done
+            if [ "$ok" -eq 1 ]; then
+              echo "Live files match ${GITHUB_SHA}."
+              exit 0
+            fi
+            echo "Waiting for live files (attempt ${attempt}/18)."
+            sleep 10
+          done
+          echo '::error::Live files did not match the pushed commit.'
+          exit 1
