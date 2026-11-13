@@ -8,6 +8,9 @@ import json
 import os
 import re
 import sys
+import subprocess
+import hashlib
+import shutil
 from datetime import datetime
 from html import escape, unescape
 from pathlib import Path
@@ -226,6 +229,7 @@ def html_header(title: str, desc: str, depth: int = 0, rel_path: str = "",
   {seo}<link rel="stylesheet" href="{pre}assets/css/style.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 """
 
 
@@ -249,7 +253,7 @@ def site_header(depth: int = 0) -> str:
         <a href="{pre}gallery.html">Gallery</a>
       </nav>
       <div class="nav-social">
-        <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" aria-label="Instagram">
+        <a href="https://www.instagram.com/craftsandcratesatl/" rel="noopener" aria-label="Instagram">
           {IG_ICON}
         </a>
         <a href="mailto:mikemoore00@gmail.com" aria-label="Email us">
@@ -271,17 +275,17 @@ def site_footer(depth: int = 0) -> str:
         <img src="{pre}assets/images/cropped-CC_Logo.png" alt="Crafts &amp; Crates ATL" style="height:44px;">
       </a>
       <nav class="footer-links" aria-label="Footer navigation">
-        <a href="{pre}events.html">Previous Events</a>
+        <a href="{pre}events.html">Events</a>
         <a href="{pre}gallery.html">Gallery</a>
       </nav>
       <div class="footer-social">
-        <a href="https://www.instagram.com/craftsandcratesatl/" target="_blank" rel="noopener" aria-label="Instagram">
+        <a href="https://www.instagram.com/craftsandcratesatl/" rel="noopener" aria-label="Instagram">
           {IG_ICON}
         </a>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Crafts &amp; Crates ATL. Website by <a href="https://ctecwebdesign.com/" target="_blank" rel="noopener noreferrer">CTEC Web Design</a>.</p>
+      <p>&copy; 2026 Crafts &amp; Crates ATL. Website by <a href="https://ctecwebdesign.com/" rel="noopener noreferrer">CTEC Web Design</a>.</p>
     </div>
   </div>
 </footer>
@@ -362,20 +366,26 @@ def event_card_html(evt: dict, depth: int = 0, warn: list = None) -> str:
 
 def generate_events(events: list, warnings: list):
     html = html_header(
-        "Previous Events – Crafts &amp; Crates ATL",
-        "Browse all previous Crafts &amp; Crates ATL hip-hop events at Halfway Crooks Biergarten in Summerhill, Atlanta.",
+        "Events – Crafts &amp; Crates ATL",
+        "Browse Crafts &amp; Crates ATL hip-hop events at Halfway Crooks Biergarten in Summerhill, Atlanta.",
         depth=0,
         rel_path="events.html",
     )
     html += site_header(0)
     html += """
-<main>
+<main id="main-content" tabindex="-1">
   <section class="section">
     <div class="container">
-      <p class="section-kicker">Archive</p>
-      <h1 class="events-header reveal">Previous Events</h1>
+      <p class="section-kicker">Crafts &amp; Crates ATL</p>
+      <h1 class="events-header reveal">Events</h1>
       <div class="divider"></div>
-      <div class="cards-grid stagger">
+      <div id="upcoming-events" hidden>
+        <h2>Upcoming Events</h2>
+        <div class="cards-grid stagger"></div>
+        <div class="divider"></div>
+      </div>
+      <h2 id="event-list-heading">All Events</h2>
+      <div id="event-list" class="cards-grid stagger">
 """
     for evt in events:
         html += event_card_html(evt, depth=0, warn=warnings)
@@ -385,6 +395,7 @@ def generate_events(events: list, warnings: list):
 </main>
 """
     html += site_footer(0)
+    html += '<script src="assets/js/events.js"></script>\n'
     html += html_footer(0)
 
     out = REPO / "events.html"
@@ -540,10 +551,10 @@ def generate_post(evt: dict, idx: int, events: list, warnings: list):
 
     # Post hero
     html += f"""
-<main>
+<main id="main-content" tabindex="-1">
   <section class="post-hero">
     <div class="container">
-      <span class="post-category">Previous Events</span>
+      <span class="post-category">Events</span>
       <h1>{title_esc}</h1>
       <p class="post-date">{date_fmt}</p>
     </div>
@@ -613,20 +624,37 @@ def generate_post(evt: dict, idx: int, events: list, warnings: list):
 # Generate gallery.html
 # ---------------------------------------------------------------------------
 
+def gallery_thumbnail(local):
+    """Create a content-addressed, cropped WebP thumbnail; keep originals untouched."""
+    source = IMAGES_DIR / local
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()[:16]
+    dest = REPO / 'assets' / 'images' / 'gallery-thumbs' / f'{digest}.webp'
+    if not dest.exists():
+        if not shutil.which('magick'):
+            raise RuntimeError('ImageMagick (magick) is required to create gallery thumbnails')
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(['magick', str(source), '-auto-orient', '-thumbnail', '600x450^',
+                        '-gravity', 'center', '-extent', '600x450', '-quality', '76', str(dest)], check=True)
+    return dest.relative_to(REPO).as_posix()
+
+
 def generate_gallery(warnings: list, source_items=None):
     items = parse_content(CONTENT_DIR / "event-info.txt") if source_items is None else source_items
 
     seen = set()
     imgs = []
+    names = {p.name.casefold(): p.name for p in IMAGES_DIR.iterdir() if p.is_file()}
     for tag, content in items:
         if tag != "IMG":
             continue
         url, alt, local = parse_img_tag(content)
-        if local in seen:
+        local = names.get(local.casefold(), local)
+        if not local or local in seen:
             continue
         seen.add(local)
-        if not check_img(local):
+        if local not in names.values():
             warnings.append(f"  MISSING gallery: {local}")
+            continue
         imgs.append((local, alt))
 
     html = html_header(
@@ -637,7 +665,7 @@ def generate_gallery(warnings: list, source_items=None):
     )
     html += site_header(0)
     html += f"""
-<main>
+<main id="main-content" tabindex="-1">
   <section class="section gallery-concrete-bg">
     <div class="container">
       <p class="section-kicker">Photos</p>
@@ -647,9 +675,10 @@ def generate_gallery(warnings: list, source_items=None):
       <div class="gallery-grid">
 """
     for local, alt in imgs:
-        src = img_path_from_root(local)
+        src = escape(gallery_thumbnail(local), quote=True)
+        original = escape(img_path_from_root(local), quote=True)
         alt_safe = escape(unescape(alt)) if alt else "Crafts &amp; Crates ATL event photo"
-        html += f'        <div class="gallery-item"><img src="{src}" alt="{alt_safe}" loading="lazy"></div>\n'
+        html += f'        <div class="gallery-item"><img src="{src}" data-full="{original}" alt="{alt_safe}" width="600" height="450" loading="lazy" decoding="async"></div>\n'
 
     html += """      </div>
     </div>
@@ -660,6 +689,17 @@ def generate_gallery(warnings: list, source_items=None):
     html += html_footer(0)
 
     out = REPO / "gallery.html"
+    # The checked-in page owns shared navigation, accessibility and SEO changes.
+    # Replace only the generated count and grid when that page already exists.
+    if out.exists():
+        existing = out.read_text(encoding="utf-8")
+        count_re = r'(<p class="section-intro section-intro--light reveal">)\d+( photos from Crafts &amp; Crates ATL events\.</p>)'
+        existing, count_replaced = re.subn(count_re, lambda m: m.group(1) + str(len(imgs)) + m.group(2), existing, count=1)
+        grid_re = r'(<div class="gallery-grid">).*?(?=\s*</div>\s*</div>\s*</section>)'
+        generated_grid = re.search(grid_re, html, re.S)
+        if count_replaced != 1 or not generated_grid or not re.search(grid_re, existing, re.S):
+            raise RuntimeError('Cannot locate gallery count/grid; refusing to overwrite existing page')
+        html = re.sub(grid_re, lambda m: generated_grid.group(0), existing, count=1, flags=re.S)
     out.write_text(html, encoding="utf-8")
     print(f"  Wrote {out.relative_to(REPO)}")
     return len(imgs)
@@ -675,8 +715,15 @@ def gallery_items_from_existing_page():
     grid = re.search(r'<div class="gallery-grid">(.*?)</div>\s*</div>\s*</section>', html, re.S)
     if not grid:
         return []
-    return [("IMG", f"https://source.invalid/{src} (alt: {alt})")
-            for src, alt in re.findall(r'<img src="(?:\.\./)?assets/images/([^\"]+)" alt="([^\"]*)"', grid.group(1))]
+    images = re.findall(r'<img\s+([^>]+)>', grid.group(1))
+    result = []
+    for attrs in images:
+        src = re.search(r'(?:data-full|src)="(?:\.\./)?assets/images/([^\"]+)"', attrs)
+        full = re.search(r'data-full="(?:\.\./)?assets/images/([^\"]+)"', attrs)
+        alt = re.search(r'alt="([^\"]*)"', attrs)
+        if src:
+            result.append(("IMG", f"https://source.invalid/{unescape((full or src).group(1))} (alt: {unescape(alt.group(1)) if alt else ''})"))
+    return result
 
 
 def events_from_existing_pages():

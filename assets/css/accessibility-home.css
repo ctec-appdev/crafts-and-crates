@@ -1,0 +1,35 @@
+/* Home-only carousel sizing and readable controls. */
+.hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+.home-calendar .two-col { grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); }
+.hero-grid > *,
+.section--jbs .two-col > * { min-width: 0; }
+.carousel-dots { flex-wrap: wrap; }
+.carousel-autoplay-toggle {
+  color: #fff;
+  background: #20262e;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.carousel-autoplay-toggle:focus-visible { outline: 3px solid #f09020; outline-offset: 3px; }
+@media (max-width: 768px) {
+  .section--jbs .btn { min-height: 44px; display: inline-flex; align-items: center; }
+}
+
+/* A consistent light wash keeps the calendar copy legible over the photo. */
+.home-calendar {
+  background: linear-gradient(rgba(235, 237, 240, .94), rgba(235, 237, 240, .94)), url('../images/container-wall.jpg') 52% 16% / cover no-repeat;
+}
+.home-calendar .section-title,
+.home-calendar .two-col-text p { color: #161c24; }
+.home-calendar .ig-handle { color: #873f00; }
+
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 768px) {
+  .two-col, .home-calendar .two-col { grid-template-columns: minmax(0, 1fr); }
+  .two-col > * { min-width: 0; }
+  .map-wrap iframe, .venue-sign { max-width: 100%; }
+}

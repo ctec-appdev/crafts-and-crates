@@ -1,0 +1,25 @@
+/* Keep team photo controls in their own row, clear of portraits and names. */
+.team-card .carousel-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 12px;
+  padding-bottom: 12px;
+}
+
+.team-card .carousel {
+  grid-column: 1 / -1;
+}
+
+.team-card .carousel-btn {
+  position: static;
+  transform: none;
+  margin-top: 12px;
+  background: #252a30;
+}
+
+.team-card .carousel-btn--prev { justify-self: end; }
+.team-card .carousel-btn--next { justify-self: start; }
+.team-card .carousel-btn:hover {
+  background: var(--orange);
+  transform: scale(1.1);
+}

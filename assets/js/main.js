@@ -53,9 +53,15 @@
     btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>';
     document.body.appendChild(btn);
 
-    window.addEventListener('scroll', function () {
-      btn.classList.toggle('visible', window.scrollY > 500);
-    }, { passive: true });
+    var footer = document.querySelector('.site-footer');
+    function updateVisibility() {
+      var footerVisible = footer && footer.getBoundingClientRect().top < window.innerHeight;
+      btn.classList.toggle('visible', window.scrollY > 500 && !footerVisible);
+      btn.tabIndex = btn.classList.contains('visible') ? 0 : -1;
+    }
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    window.addEventListener('resize', updateVisibility);
+    updateVisibility();
 
     btn.addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -383,7 +389,7 @@
           var imgs;
           if (gallery) {
             imgs = Array.from(gallery.querySelectorAll('.gallery-item img')).map(function (i) {
-              return { src: i.src, alt: i.alt };
+              return { src: i.dataset.full || i.src, alt: i.alt };
             });
           } else {
             imgs = [{ src: img.src, alt: img.alt }];
