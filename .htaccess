@@ -9,6 +9,15 @@ RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} ^www\. [NC]
 RewriteRule ^ https://craftsandcratesatl.com%{REQUEST_URI} [R=301,L]
 
+# Repo/maintenance files stay private (docroot doubles as the cPanel Git repo dir)
+RewriteRule ^\.git - [F]
+RewriteRule ^\.claude - [F]
+RewriteRule ^\.cpanel\.yml$ - [F]
+RewriteRule ^\.gitignore$ - [F]
+RewriteRule ^\.deployment-revision$ - [F]
+RewriteRule ^tools/ - [F]
+RewriteRule ^[^/]*\.md$ - [F]
+
 # 301: legacy WordPress URLs -> static structure
 RewriteRule ^blog/?$ /events.html [R=301,L]
 RewriteRule ^event\-info/?$ /gallery.html [R=301,L]
