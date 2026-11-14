@@ -9,6 +9,19 @@ RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} ^www\. [NC]
 RewriteRule ^ https://craftsandcratesatl.com%{REQUEST_URI} [R=301,L]
 
+# 301: redirect index.html to canonical URL
+
+# Canonicalize event slugs: crafts-crates -> crafts-and-crates
+RewriteRule ^events/april-26-crafts-crates/?$ /events/april-26-crafts-and-crates.html [R=301,L]
+RewriteRule ^events/august-26-crafts-crates/?$ /events/august-26-crafts-and-crates.html [R=301,L]
+RewriteRule ^events/february-26-crafts-crates/?$ /events/february-26-crafts-and-crates.html [R=301,L]
+RewriteRule ^events/november-26-crafts-crates/?$ /events/november-26-crafts-and-crates.html [R=301,L]
+
+# Redirect any -crafts-crates- pattern to -crafts-and-crates- in event paths
+RewriteRule ^events/([a-z-]+)-crafts-crates(-[a-z-]+)?\.html$ /events/$1-crafts-and-crates$2.html [R=301,L]
+
+RewriteRule ^index\.html$ / [R=301,L]
+
 # Repo/maintenance files stay private (docroot doubles as the cPanel Git repo dir)
 RewriteRule ^\.git - [F]
 RewriteRule ^\.claude - [F]

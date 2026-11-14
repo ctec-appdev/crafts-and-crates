@@ -354,7 +354,7 @@ def event_card_html(evt: dict, depth: int = 0, warn: list = None) -> str:
   <div class="event-card-body">
     <p class="event-card-date">{date_fmt}</p>
     <h3 class="event-card-title"><a href="{href}">{title_esc}</a></h3>
-    <a href="{href}" class="event-card-link">View Event {ARROW_RIGHT}</a>
+    <a href="{href}" class="event-card-link" aria-label="{title}">{title} <svg{ARROW_RIGHT}</svg></a>
   </div>
 </article>
 """

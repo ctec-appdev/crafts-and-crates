@@ -832,6 +832,10 @@ p:last-child { margin-bottom: 0; }
 }
 .gallery-grid .gallery-item { margin: 0; aspect-ratio: 4 / 3; }
 .gallery-grid .gallery-item img { height: 100%; object-fit: cover; }
+.gallery-grid .gallery-item[hidden] { display: none; }
+.gallery-more { text-align: center; margin-top: 32px; }
+.gallery-more-status { color: #fff; margin-bottom: 16px; }
+.gallery-more .btn { min-height: 44px; }
 .gallery-item {
   break-inside: avoid;
   margin-bottom: 12px;

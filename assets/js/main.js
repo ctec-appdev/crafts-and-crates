@@ -271,6 +271,49 @@
   }
 
   /* -------------------------------------------------------
+     GALLERY BATCHES (all photos remain available without JS)
+  ------------------------------------------------------- */
+  function initGalleryBatches() {
+    var grid = document.querySelector('.gallery-grid');
+    if (!grid) return;
+    var items = Array.from(grid.querySelectorAll('.gallery-item'));
+    var batchSize = 24;
+    if (items.length <= batchSize) return;
+
+    var shown = batchSize;
+    items.forEach(function (item, index) { item.hidden = index >= shown; });
+    grid.id = 'gallery-photos';
+
+    var controls = document.createElement('div');
+    controls.className = 'gallery-more';
+    var status = document.createElement('p');
+    status.className = 'gallery-more-status';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn btn--primary';
+    button.textContent = 'Load more photos';
+    button.setAttribute('aria-controls', grid.id);
+    controls.appendChild(status);
+    controls.appendChild(button);
+    grid.insertAdjacentElement('afterend', controls);
+
+    function updateStatus() {
+      status.textContent = 'Showing ' + shown + ' of ' + items.length + ' photos';
+    }
+    updateStatus();
+    button.addEventListener('click', function (event) {
+      var firstNew = shown;
+      shown = Math.min(shown + batchSize, items.length);
+      for (var i = firstNew; i < shown; i++) items[i].hidden = false;
+      updateStatus();
+      if (event.detail === 0) items[firstNew].focus();
+      if (shown === items.length) button.remove();
+    });
+  }
+
+  /* -------------------------------------------------------
      LIGHTBOX
   ------------------------------------------------------- */
   (function () {
@@ -425,6 +468,7 @@
     initCarousels();
     initScrollReveal();
     initHeroParallax();
+    initGalleryBatches();
     if (window.__initGalleries) window.__initGalleries();
   });
 })();
