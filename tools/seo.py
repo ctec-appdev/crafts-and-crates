@@ -86,6 +86,34 @@ def org_ld() -> str:
     return json.dumps(data, ensure_ascii=False)
 
 
+def homepage_ld() -> str:
+    organization = json.loads(org_ld())
+    local_business = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Crafts & Crates ATL",
+        "url": SITE,
+        "description": "Live hip-hop events at Halfway Crooks Biergarten in Atlanta's historic Summerhill neighborhood.",
+        "address": VENUE["address"],
+        "openingHoursSpecification": [
+            {"@type": "OpeningHoursSpecification", "dayOfWeek": [day], "opens": opens, "closes": closes}
+            for day, opens, closes in (
+                ("Monday", "00:00", "00:00"),
+                ("Tuesday", "00:00", "00:00"),
+                ("Wednesday", "00:00", "00:00"),
+                ("Thursday", "00:00", "00:00"),
+                ("Friday", "17:00", "02:00"),
+                ("Saturday", "12:00", "02:00"),
+                ("Sunday", "00:00", "00:00"),
+            )
+        ],
+    }
+    return json.dumps(
+        {"@context": "https://schema.org", "@graph": [organization, local_business]},
+        ensure_ascii=False,
+    )
+
+
 def event_ld(title: str, desc: str, start: str, image_url: str, url: str) -> str:
     data = {
         "@context": "https://schema.org",
@@ -170,7 +198,7 @@ def enhance_page(path: Path, first_img_basenames: dict={}):
             scripts.append(event_ld(h1, desc, date_iso, og_img_url, canonical))
         scripts.append(breadcrumb_ld(h1, True, rel_path))
     elif rel_path == "index.html":
-        scripts.append(org_ld())
+        scripts.append(homepage_ld())
     else:
         scripts.append(breadcrumb_ld(h1, False, rel_path))
 
