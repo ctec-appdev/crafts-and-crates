@@ -92,56 +92,33 @@ jobs:
             done < "$RUNNER_TEMP/deleted-files"
 
             if [ -s "$deploy_list" ]; then
-              archive="$RUNNER_TEMP/site-${GITHUB_SHA}.tar.gz"
-              tar -czf "$archive" --null --files-from="$deploy_list"
-              upload="$RUNNER_TEMP/upload.json"
-              curl --fail-with-body --silent --show-error --max-time 300 \
-                --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
-                --form 'dir=public_html/crafts-and-crates' \
-                --form "file-1=@${archive};filename=.deploy-${GITHUB_SHA}.tar.gz" \
-                "https://${CPANEL_HOST}:2083/execute/Fileman/upload_files" --output "$upload"
-              jq -e '(.result.status // .status) == 1' "$upload" >/dev/null || {
-                jq -r '.result.errors[]? // empty' "$upload" || true
-                jq -c '{status: .status, errors: .errors, messages: .messages, result: .result}' "$upload" 2>/dev/null || head -c 4000 "$upload"
-                echo '::error::cPanel Fileman could not upload the deployment archive.'
-                exit 1
-              }
-
-              extract="$RUNNER_TEMP/extract.json"
-              curl --fail-with-body --silent --show-error --max-time 180 --get \
-                --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
-                --data-urlencode 'cpanel_jsonapi_apiversion=2' \
-                --data-urlencode "cpanel_jsonapi_user=${CPANEL_USER}" \
-                --data-urlencode 'cpanel_jsonapi_module=Fileman' \
-                --data-urlencode 'cpanel_jsonapi_func=fileop' \
-                --data-urlencode 'op=extract' \
-                --data-urlencode "sourcefiles=public_html/crafts-and-crates/.deploy-${GITHUB_SHA}.tar.gz" \
-                --data-urlencode 'destfiles=public_html/crafts-and-crates' \
-                --data-urlencode 'doubledecode=1' \
-                --data-urlencode 'metadata=tar.gz' \
-                "https://${CPANEL_HOST}:2083/json-api/cpanel" --output "$extract"
-              jq -e '.cpanelresult.event.result == 1 and all(.cpanelresult.data[]?; .result == 1)' "$extract" >/dev/null || {
-                jq -r '.cpanelresult.data[]?.err // empty' "$extract" || true
-                echo '::error::cPanel Fileman could not extract the deployment archive.'
-                exit 1
-              }
-
-              cleanup="$RUNNER_TEMP/cleanup.json"
-              curl --fail-with-body --silent --show-error --max-time 60 --get \
-                --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
-                --data-urlencode 'cpanel_jsonapi_apiversion=2' \
-                --data-urlencode "cpanel_jsonapi_user=${CPANEL_USER}" \
-                --data-urlencode 'cpanel_jsonapi_module=Fileman' \
-                --data-urlencode 'cpanel_jsonapi_func=fileop' \
-                --data-urlencode 'op=trash' \
-                --data-urlencode "sourcefiles=public_html/crafts-and-crates/.deploy-${GITHUB_SHA}.tar.gz" \
-                --data-urlencode 'doubledecode=1' \
-                "https://${CPANEL_HOST}:2083/json-api/cpanel" --output "$cleanup"
-              jq -e '.cpanelresult.event.result == 1' "$cleanup" >/dev/null || {
-                jq -r '.cpanelresult.data[]?.err // empty' "$cleanup" || true
-                echo '::error::Site files were deployed, but cPanel could not remove the temporary archive.'
-                exit 1
-              }
+              directories="$RUNNER_TEMP/deploy-directories"
+              while IFS= read -r -d '' file; do dirname "$file"; done < "$deploy_list" | sort -u > "$directories"
+              while IFS= read -r directory; do
+                upload_dir=public_html/crafts-and-crates
+                if [ "$directory" != . ]; then
+                  upload_dir="$upload_dir/$directory"
+                fi
+                forms=(--form "dir=$upload_dir")
+                index=1
+                while IFS= read -r -d '' file; do
+                  if [ "$(dirname "$file")" = "$directory" ]; then
+                    forms+=(--form "file-${index}=@${file};filename=$(basename "$file")")
+                    index=$((index + 1))
+                  fi
+                done < "$deploy_list"
+                upload="$RUNNER_TEMP/upload.json"
+                curl --fail-with-body --silent --show-error --max-time 180 \
+                  --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
+                  "${forms[@]}" \
+                  "https://${CPANEL_HOST}:2083/execute/Fileman/upload_files" --output "$upload"
+                jq -e '(.result.status // .status) == 1' "$upload" >/dev/null || {
+                  jq -r '.result.errors[]? // empty' "$upload" || true
+                  jq -c '{status: .status, errors: .errors, messages: .messages, result: .result}' "$upload" 2>/dev/null || head -c 4000 "$upload"
+                  echo "::error::cPanel Fileman could not upload files in ${upload_dir}."
+                  exit 1
+                }
+              done < "$directories"
             fi
 
             while IFS= read -r -d '' file; do
