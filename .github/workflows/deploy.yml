@@ -116,10 +116,11 @@ jobs:
                 --data-urlencode 'cpanel_jsonapi_func=fileop' \
                 --data-urlencode 'op=extract' \
                 --data-urlencode "sourcefiles=public_html/crafts-and-crates/.deploy-${GITHUB_SHA}.tar.gz" \
+                --data-urlencode 'destfiles=public_html/crafts-and-crates' \
                 --data-urlencode 'doubledecode=1' \
                 --data-urlencode 'metadata=tar.gz' \
                 "https://${CPANEL_HOST}:2083/json-api/cpanel" --output "$extract"
-              jq -e '.cpanelresult.event.result == 1' "$extract" >/dev/null || {
+              jq -e '.cpanelresult.event.result == 1 and all(.cpanelresult.data[]?; .result == 1)' "$extract" >/dev/null || {
                 jq -r '.cpanelresult.data[]?.err // empty' "$extract" || true
                 echo '::error::cPanel Fileman could not extract the deployment archive.'
                 exit 1
