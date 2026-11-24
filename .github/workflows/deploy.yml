@@ -62,7 +62,10 @@ jobs:
               -f branch=master -f status=success -f per_page=1 \
               --jq '.workflow_runs[0].head_sha // empty')"
             if [ -z "$base_sha" ]; then
-              base_sha="$(git rev-list --max-parents=0 "$GITHUB_SHA" | tail -n 1)"
+              base_sha=f073fb4
+              if ! git cat-file -e "${base_sha}^{commit}" 2>/dev/null; then
+                base_sha="$(git rev-list --max-parents=0 "$GITHUB_SHA" | tail -n 1)"
+              fi
             fi
             git diff --name-only --diff-filter=ACMRT -z "$base_sha" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"
             git diff --name-only --diff-filter=D -z "$base_sha" "$GITHUB_SHA" > "$RUNNER_TEMP/deleted-files"
@@ -97,7 +100,7 @@ jobs:
                 --form 'dir=public_html/crafts-and-crates' \
                 --form "file-1=@${archive};filename=.deploy-${GITHUB_SHA}.tar.gz" \
                 "https://${CPANEL_HOST}:2083/execute/Fileman/upload_files" --output "$upload"
-              jq -e '.result.status == 1' "$upload" >/dev/null || {
+              jq -e '(.result.status // .status) == 1' "$upload" >/dev/null || {
                 jq -r '.result.errors[]? // empty' "$upload" || true
                 jq -c '{status: .status, errors: .errors, messages: .messages, result: .result}' "$upload" 2>/dev/null || head -c 4000 "$upload"
                 echo '::error::cPanel Fileman could not upload the deployment archive.'
