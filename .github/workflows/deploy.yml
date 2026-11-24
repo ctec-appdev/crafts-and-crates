@@ -99,6 +99,7 @@ jobs:
                 "https://${CPANEL_HOST}:2083/execute/Fileman/upload_files" --output "$upload"
               jq -e '.result.status == 1' "$upload" >/dev/null || {
                 jq -r '.result.errors[]? // empty' "$upload" || true
+                jq -c '{status: .status, errors: .errors, messages: .messages, result: .result}' "$upload" 2>/dev/null || head -c 4000 "$upload"
                 echo '::error::cPanel Fileman could not upload the deployment archive.'
                 exit 1
               }
