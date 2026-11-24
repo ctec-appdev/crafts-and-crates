@@ -34,6 +34,8 @@ jobs:
           node --check assets/js/events.js
       - name: Deploy to cPanel
         id: deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           echo 'direct_fallback=false' >> "$GITHUB_OUTPUT"
