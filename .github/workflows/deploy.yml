@@ -165,7 +165,7 @@ jobs:
               esac
               encoded="$(python3 -c 'from urllib.parse import quote; import sys; print(quote(sys.argv[1], safe="/"))' "$file")"
               remote="$(mktemp)"
-              if ! curl --fail --silent --show-error --max-time 20 \
+              if ! curl --location --fail --silent --show-error --max-time 20 \
                 --header 'Cache-Control: no-cache' \
                 "https://craftsandcratesatl.com/${encoded}?deploy=${GITHUB_SHA}" -o "$remote" || \
                 ! cmp -s "$file" "$remote"; then
@@ -189,7 +189,7 @@ jobs:
             ok=1
             for file in index.html assets/css/style.css assets/js/main.js; do
               remote="$(mktemp)"
-              if ! curl --fail --silent --show-error --max-time 20 \
+              if ! curl --location --fail --silent --show-error --max-time 20 \
                 --header 'Cache-Control: no-cache' \
                 "https://craftsandcratesatl.com/${file}?deploy=${GITHUB_SHA}" -o "$remote" || \
                 ! cmp -s "$file" "$remote"; then
