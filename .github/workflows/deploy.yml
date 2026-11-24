@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -23,38 +24,180 @@ jobs:
       CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Check site
         run: |
           set -euo pipefail
           python3 tools/check.py
           node --check assets/js/main.js
           node --check assets/js/events.js
-      - name: Update production repository
+      - name: Deploy to cPanel
+        id: deploy
         run: |
           set -euo pipefail
+          echo 'direct_fallback=false' >> "$GITHUB_OUTPUT"
           if [ -z "$CPANEL_API_TOKEN" ]; then
             echo '::error::Set the CPANEL_API_TOKEN repository secret in GitHub Actions settings.'
             exit 1
           fi
           result="$(mktemp)"
           trap 'rm -f "$result"' EXIT
-          curl --fail-with-body --silent --show-error --max-time 90 \
+          updated=0
+          if curl --fail-with-body --silent --show-error --max-time 90 \
             --output "$result" --request POST \
             --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
             --data-urlencode "repository_root=${CPANEL_REPOSITORY_ROOT}" \
             --data-urlencode 'branch=master' \
-            "https://${CPANEL_HOST}:2083/execute/VersionControl/update"
-          if ! jq -e '(.result // .) | .status == 1' "$result" >/dev/null; then
-            echo '::error::cPanel did not confirm a successful repository update.'
-            jq -r '(.result // .).errors[]? // empty' "$result" 2>/dev/null || true
-            exit 1
+            "https://${CPANEL_HOST}:2083/execute/VersionControl/update" && \
+            jq -e '(.result // .) | .status == 1' "$result" >/dev/null; then
+            updated=1
+            echo 'cPanel updated the production repository.'
           fi
-          echo 'cPanel confirmed the repository update.'
-      # The cPanel clone is the document root. Updating the clone publishes it;
-      # running .cpanel.yml would rsync the directory onto itself.
+          if [ "$updated" -eq 0 ]; then
+            echo 'cPanel could not fetch GitHub; deploying changed site files through Fileman.'
+            base_sha="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/runs" \
+              -f branch=master -f status=success -f per_page=1 \
+              --jq '.workflow_runs[0].head_sha // empty')"
+            if [ -z "$base_sha" ]; then
+              base_sha="$(git rev-list --max-parents=0 "$GITHUB_SHA" | tail -n 1)"
+            fi
+            git diff --name-only --diff-filter=ACMRT -z "$base_sha" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"
+            git diff --name-only --diff-filter=D -z "$base_sha" "$GITHUB_SHA" > "$RUNNER_TEMP/deleted-files"
+
+            deploy_list="$RUNNER_TEMP/deploy-files"
+            delete_list="$RUNNER_TEMP/delete-files"
+            : > "$deploy_list"
+            : > "$delete_list"
+            is_site_file() {
+              case "$1" in
+                .git/*|.github/*|.claude/*|.impeccable/*|.well-known/*|tools/*|*.md|*.xlsx|.cpanel.yml|.gitignore|.DS_Store) return 1 ;;
+                *) return 0 ;;
+              esac
+            }
+            while IFS= read -r -d '' file; do
+              if is_site_file "$file" && [ -f "$file" ]; then
+                printf '%s\0' "$file" >> "$deploy_list"
+              fi
+            done < "$RUNNER_TEMP/changed-files"
+            while IFS= read -r -d '' file; do
+              if is_site_file "$file"; then
+                printf '%s\0' "$file" >> "$delete_list"
+              fi
+            done < "$RUNNER_TEMP/deleted-files"
+
+            if [ -s "$deploy_list" ]; then
+              archive="$RUNNER_TEMP/site-${GITHUB_SHA}.tar.gz"
+              tar -czf "$archive" --null --files-from="$deploy_list"
+              upload="$RUNNER_TEMP/upload.json"
+              curl --fail-with-body --silent --show-error --max-time 300 \
+                --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
+                --form 'dir=public_html/crafts-and-crates' \
+                --form "file-1=@${archive};filename=.deploy-${GITHUB_SHA}.tar.gz" \
+                "https://${CPANEL_HOST}:2083/execute/Fileman/upload_files" --output "$upload"
+              jq -e '.result.status == 1' "$upload" >/dev/null || {
+                jq -r '.result.errors[]? // empty' "$upload" || true
+                echo '::error::cPanel Fileman could not upload the deployment archive.'
+                exit 1
+              }
+
+              extract="$RUNNER_TEMP/extract.json"
+              curl --fail-with-body --silent --show-error --max-time 180 --get \
+                --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
+                --data-urlencode 'cpanel_jsonapi_apiversion=2' \
+                --data-urlencode "cpanel_jsonapi_user=${CPANEL_USER}" \
+                --data-urlencode 'cpanel_jsonapi_module=Fileman' \
+                --data-urlencode 'cpanel_jsonapi_func=fileop' \
+                --data-urlencode 'op=extract' \
+                --data-urlencode "sourcefiles=public_html/crafts-and-crates/.deploy-${GITHUB_SHA}.tar.gz" \
+                --data-urlencode 'doubledecode=1' \
+                --data-urlencode 'metadata=tar.gz' \
+                "https://${CPANEL_HOST}:2083/json-api/cpanel" --output "$extract"
+              jq -e '.cpanelresult.event.result == 1' "$extract" >/dev/null || {
+                jq -r '.cpanelresult.data[]?.err // empty' "$extract" || true
+                echo '::error::cPanel Fileman could not extract the deployment archive.'
+                exit 1
+              }
+
+              cleanup="$RUNNER_TEMP/cleanup.json"
+              curl --fail-with-body --silent --show-error --max-time 60 --get \
+                --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
+                --data-urlencode 'cpanel_jsonapi_apiversion=2' \
+                --data-urlencode "cpanel_jsonapi_user=${CPANEL_USER}" \
+                --data-urlencode 'cpanel_jsonapi_module=Fileman' \
+                --data-urlencode 'cpanel_jsonapi_func=fileop' \
+                --data-urlencode 'op=trash' \
+                --data-urlencode "sourcefiles=public_html/crafts-and-crates/.deploy-${GITHUB_SHA}.tar.gz" \
+                --data-urlencode 'doubledecode=1' \
+                "https://${CPANEL_HOST}:2083/json-api/cpanel" --output "$cleanup"
+              jq -e '.cpanelresult.event.result == 1' "$cleanup" >/dev/null || {
+                jq -r '.cpanelresult.data[]?.err // empty' "$cleanup" || true
+                echo '::error::Site files were deployed, but cPanel could not remove the temporary archive.'
+                exit 1
+              }
+            fi
+
+            while IFS= read -r -d '' file; do
+              response="$RUNNER_TEMP/delete.json"
+              curl --fail-with-body --silent --show-error --max-time 60 --get \
+                --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
+                --data-urlencode 'cpanel_jsonapi_apiversion=2' \
+                --data-urlencode "cpanel_jsonapi_user=${CPANEL_USER}" \
+                --data-urlencode 'cpanel_jsonapi_module=Fileman' \
+                --data-urlencode 'cpanel_jsonapi_func=fileop' \
+                --data-urlencode 'op=trash' \
+                --data-urlencode "sourcefiles=public_html/crafts-and-crates/${file}" \
+                --data-urlencode 'doubledecode=1' \
+                "https://${CPANEL_HOST}:2083/json-api/cpanel" --output "$response"
+              jq -e '.cpanelresult.event.result == 1' "$response" >/dev/null || {
+                jq -r '.cpanelresult.data[]?.err // empty' "$response" || true
+                echo "::error::Could not remove deleted site file: ${file}"
+                exit 1
+              }
+            done < "$delete_list"
+            delimiter="DEPLOY_${GITHUB_SHA}"
+            {
+              echo 'direct_fallback=true'
+              echo "deployed_files<<${delimiter}"
+              tr '\0' '\n' < "$deploy_list"
+              echo "$delimiter"
+              echo "deleted_files<<${delimiter}_DELETED"
+              tr '\0' '\n' < "$delete_list"
+              echo "${delimiter}_DELETED"
+            } >> "$GITHUB_OUTPUT"
+            echo 'Direct cPanel file deployment completed.'
+          fi
       - name: Verify deployed files
+        env:
+          DEPLOYED_FILES: ${{ steps.deploy.outputs.deployed_files }}
+          DELETED_FILES: ${{ steps.deploy.outputs.deleted_files }}
         run: |
           set -euo pipefail
+          if [ "${{ steps.deploy.outputs.direct_fallback }}" = true ]; then
+            while IFS= read -r file; do
+              [ -n "$file" ] || continue
+              encoded="$(python3 -c 'from urllib.parse import quote; import sys; print(quote(sys.argv[1], safe="/"))' "$file")"
+              remote="$(mktemp)"
+              if ! curl --fail --silent --show-error --max-time 20 \
+                --header 'Cache-Control: no-cache' \
+                "https://craftsandcratesatl.com/${encoded}?deploy=${GITHUB_SHA}" -o "$remote" || \
+                ! cmp -s "$file" "$remote"; then
+                echo "::error::Deployed file does not match the pushed commit: ${file}"
+                exit 1
+              fi
+              rm -f "$remote"
+            done <<< "$DEPLOYED_FILES"
+            while IFS= read -r file; do
+              [ -n "$file" ] || continue
+              encoded="$(python3 -c 'from urllib.parse import quote; import sys; print(quote(sys.argv[1], safe="/"))' "$file")"
+              code="$(curl --silent --show-error --max-time 20 --output /dev/null --write-out '%{http_code}' \
+                "https://craftsandcratesatl.com/${encoded}?deploy=${GITHUB_SHA}")"
+              if [ "$code" != 404 ]; then
+                echo "::error::Deleted file is still reachable (${code}): ${file}"
+                exit 1
+              fi
+            done <<< "$DELETED_FILES"
+          fi
           for attempt in {1..18}; do
             ok=1
             for file in index.html assets/css/style.css assets/js/main.js; do

@@ -1,16 +1,6 @@
 ---
-# cPanel Git deployment for https://craftsandcratesatl.com (WordPress replacement).
-# One-time setup in cPanel: Git Version Control -> clone
-#   https://github.com/ctec-appdev/crafts-and-crates.git  (branch: master)
-# into a repo directory, then "Create/Deploy". Update DEPLOYPATH below to the
-# docroot cPanel shows for the domain under Domains, then Deploy.
+# The cPanel Git checkout is the document root, so the checked-out files are
+# already live. Do not copy the directory onto itself during cPanel deploys.
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/ctecreat/public_html/crafts-and-crates/
-    - /bin/mkdir -p "$DEPLOYPATH"
-    # Replace WordPress in the docroot (rsync --delete removes wp-* files),
-    # while preserving the SSL-verified .well-known directory.
-    - /usr/bin/rsync -a --delete --exclude ".git/" --exclude ".github/" --exclude ".cpanel.yml" --exclude ".gitignore" --exclude ".claude/" --exclude ".DS_Store" --exclude "tools/" --exclude "*.md" --exclude ".well-known/" --exclude ".impeccable/" ./ "$DEPLOYPATH"
-    - /usr/bin/find "$DEPLOYPATH" -type d -exec /bin/chmod 755 {} \;
-    - /usr/bin/find "$DEPLOYPATH" -type f -exec /bin/chmod 644 {} \;
-    - /usr/local/cpanel/3rdparty/bin/git rev-parse HEAD > "${DEPLOYPATH}.deployment-revision"
+    - /bin/true
