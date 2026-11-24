@@ -99,8 +99,8 @@ jobs:
                 if [ "$directory" != . ]; then
                   upload_dir="$upload_dir/$directory"
                 fi
-                forms=(--form "dir=$upload_dir")
-                index=1
+                forms=(--form "dir=$upload_dir" --form 'overwrite=1')
+                index=0
                 while IFS= read -r -d '' file; do
                   if [ "$(dirname "$file")" = "$directory" ]; then
                     forms+=(--form "file-${index}=@${file};filename=$(basename "$file")")
@@ -112,9 +112,9 @@ jobs:
                   --header "Authorization: cpanel ${CPANEL_USER}:${CPANEL_API_TOKEN}" \
                   "${forms[@]}" \
                   "https://${CPANEL_HOST}:2083/execute/Fileman/upload_files" --output "$upload"
-                jq -e '(.result.status // .status) == 1' "$upload" >/dev/null || {
+                jq -e --argjson expected "$index" '(.result.status // .status) == 1 and (.result.data.succeeded // .data.succeeded // 0) == $expected' "$upload" >/dev/null || {
                   jq -r '.result.errors[]? // empty' "$upload" || true
-                  jq -c '{status: .status, errors: .errors, messages: .messages, result: .result}' "$upload" 2>/dev/null || head -c 4000 "$upload"
+                  jq -c '{status: .status, errors: .errors, messages: .messages, data: .data, result: .result}' "$upload" 2>/dev/null || head -c 4000 "$upload"
                   echo "::error::cPanel Fileman could not upload files in ${upload_dir}."
                   exit 1
                 }
