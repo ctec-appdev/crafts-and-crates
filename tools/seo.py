@@ -73,7 +73,7 @@ VENUE = {
 ORGANIZER = {"@type": "Organization", "name": "Crafts & Crates ATL", "url": SITE}
 
 
-def org_ld() -> str:
+def org_ld() -> dict:
     data = {
         "@context": "https://schema.org",
         "@type": "Organization",
@@ -83,11 +83,11 @@ def org_ld() -> str:
         "sameAs": ["https://www.instagram.com/craftsandcratesatl/"],
         "description": "Live hip-hop events at Halfway Crooks Biergarten in Atlanta's historic Summerhill neighborhood.",
     }
-    return json.dumps(data, ensure_ascii=False)
+    return data
 
 
-def homepage_ld() -> str:
-    organization = json.loads(org_ld())
+
+def homepage_ld() -> dict:
     local_business = {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
@@ -108,30 +108,101 @@ def homepage_ld() -> str:
             )
         ],
     }
-    return json.dumps(
-        {"@context": "https://schema.org", "@graph": [organization, local_business]},
-        ensure_ascii=False,
+    return local_business
+
+
+EVENT_PERFORMERS = {
+    # Spreadsheet source of truth: Crafts & Crates EventInfo, one row per event.
+    # Keys are event-page filenames so headings and capitalization stay exact.
+    "april-24-crafts-and-crates.html": ["DJ Popo", "DJ Dainja", "Peppermint Gatty", "DJ Mafioso"],
+    "april-25-crafts-and-crates.html": ["Jeremy Avalon", "Sir Daniel", "Peppermint Gatty", "DJ Mafioso"],
+    "april-26-crafts-and-crates.html": ["Mafioso", "Sinista", "Gnosis & Sinceelay"],
+    "atl-underground-reunion-10-18.html": ["Kaos", "Illustrate", "4-IZE", "Supastition", "John Robinson", "Headkrack", "Eddie Meeks", "A.O.S.", "Flux", "Ekundayo", "G.R.E.A.T. Scott", "Luey Price", "Galaxy High", "MRK SX"],
+    "august-23-crafts-and-crates.html": ["DJ Kerosene", "Peppermint Gatty", "DJ Dainja"],
+    "august-24-crafts-and-crates.html": ["Oxygen", "Sir Daniel", "Peppermint Gatty", "DJ Mafioso"],
+    "august-25-crafts-and-crates.html": ["DJ Kemit", "Spearhead X", "Break Rabbi", "Jason Greene"],
+    "august-26-crafts-and-crates.html": ["J-Rawls", "John Doe", "Dainja", "Mafioso", "Peppermint Gatty"],
+    "crafts-and-crates-presents-36-chambers-wu-tang-tribute.html": ["Jason Staten", "DJ Kerosene", "DJ Dainja"],
+    "crafts-and-crates-presents-all-hail-the-queens.html": ["Empress Rah", "Eboni Atl", "DJ Ghost", "DJ Aquaria"],
+    "crafts-and-crates-presents-diamond-d.html": ["Diamond D", "DJ Mafioso", "DJ Dainja"],
+    "crafts-and-crates-presents-dj-premier-vs-pete-rock.html": ["DJ Dainja", "DJ Kerosene"],
+    "crafts-and-crates-presents-doomsday.html": ["Morgan Garcia", "DJ Dainja"],
+    "crafts-and-crates-presents-fantastic-dilla-tribute.html": ["DJ Jaycee", "DJ Dainja"],
+    "crafts-and-crates-presents-shook-ones.html": ["DJ Mafioso", "DJ Dainja"],
+    "crafts-and-crates-presents-the-almighty-griselda.html": ["DJ Kerosene", "DJ Dainja"],
+    "crafts-and-crates-presents-vibes-and-stuff.html": ["Rasta Root", "DJ Dainja"],
+    "december-23-crafts-and-crates.html": ["DJ Ghost", "Eljay", "DJ Jaycee", "DJ Dainja", "Mafioso", "Peppermint Gatty"],
+    "december-25-crafts-and-crates.html": ["Nicolay", "Maurice Daniels", "Empress Rah", "Stlndrms", "Mafioso"],
+    "february-26-crafts-and-crates.html": ["Jamad", "Johnnie Dynemite", "Mafioso", "Peppermint Gatty"],
+    "january-26-crafts-and-crates.html": ["Presyce", "Deliver", "Mafioso", "Peppermint Gatty"],
+    "july-23-crafts-and-crates.html": ["DJ Og Bobby Johnson", "Peppermint Gatty", "DJ Mafioso", "DJ Dainja"],
+    "july-24-crafts-and-crates.html": ["Cozy Shawn", "DJ Dainja", "Peppermint Gatty", "DJ Mafioso"],
+    "june-24-crafts-and-crates.html": ["Skyzoo", "DJ Fudge", "Peppermint Gatty", "DJ Mafioso", "DJ Dainja"],
+    "june-25-crafts-and-crates.html": ["Sammy B", "DJ Nervex", "DJ Mafioso", "Peppermint Gatty"],
+    "march-24-crafts-and-crates.html": ["Cj Plays", "DJ Deliver", "DJ Shakim", "DJ Dainja", "Peppermint Gatty", "DJ Mafioso"],
+    "march-25-crafts-and-crates-jax-tribute.html": ["Rasta Root", "DJ Mafioso", "DJ Dainja", "Oxygen"],
+    "march-26-crafts-and-crates.html": ["DJ Ghost", "DJ Doc Bintu", "DJ Rasyrious", "Sugar Deluxe"],
+    "may-24-crafts-and-crates.html": ["Wally Sparks", "Mettaspin", "DJ Rasyrious", "Peppermint Gatty"],
+    "may-26-crafts-and-crates.html": ["Skyzoo", "Michael Mayhem", "Tabone", "Mafioso"],
+    "november-23-crafts-and-crates.html": ["Johnny Dynamite", "DJ Larmarrous", "Oxygen", "DJ Dainja", "Peppermint Gatty", "DJ Mafioso"],
+    "november-24-crafts-and-crates.html": ["J-Live", "Cj Plays", "Sean Falyon", "DJ Mafioso"],
+    "november-25-crafts-and-crates.html": ["Rock Most", "Mighty Paul", "Mafioso", "Peppermint Gatty"],
+    "november-26-crafts-and-crates.html": ["Sol Messiah", "John Robinson", "Invizible Handz", "Agent M", "Mafiso", "Peppermint Gatty"],
+    "october-23-crafts-and-crates-reunion-edition.html": ["DJ Sky", "DJ Dainja", "Peppermint Gatty", "DJ Mafioso"],
+    "october-24-crafts-and-crates-reunion-edition.html": ["DJ Dainja", "DJ Mafioso", "DJ Sky"],
+    "october-26-atl-underground-reunion-4.html": ["Mikeflo", "Melaphyre", "Broady Champs", "Ishues", "Clan Destined", "Lunden Bernard", "Mafioso", "Peppermint Gatty"],
+    "september-23-crafts-and-crates.html": ["Jason Staten", "Sir Daniel", "DJ Synthesis", "DJ Dainja", "Peppermint Gatty", "DJ Mafioso"],
+    "september-24-crafts-and-crates.html": ["DJ Smiles", "Rasta Root", "Peppermint Gatty", "DJ Mafioso", "DJ Dainja"],
+    "september-25-crafts-and-crates.html": ["Rob Wonder", "DJ Sek", "DJ Mafioso", "Peppermint Gatty"],
+    "september-26-crafts-and-crates.html": ["Nicolay", "Karl Injex", "Nabani", "Mafisos", "Peppermint Gatty"],
+}
+
+
+def event_performers(html: str, filename: str) -> list[dict]:
+    """Read featured performer headings from an event page, when present."""
+    if filename in EVENT_PERFORMERS:
+        return [{"@type": "Person", "name": name} for name in EVENT_PERFORMERS[filename]]
+    section = re.search(
+        r"<h2[^>]*>\s*Featured DJ(?:’|'|&rsquo;)s\s*</h2>(.*?)(?=<h2\b|$)",
+        html,
+        re.S | re.I,
     )
+    names = re.findall(r"<h5[^>]*>(.*?)</h5>", section.group(1), re.S | re.I) if section else []
+    performers = []
+    for raw_name in names:
+        name = html_mod.unescape(re.sub(r"<[^>]+>", "", raw_name)).strip()
+        if name:
+            name = name.title().replace("Dj ", "DJ ").replace("Cj ", "CJ ")
+            performers.append({"@type": "Person", "name": name})
+    return performers or [{"@type": "Organization", "name": "Crafts & Crates ATL"}]
 
 
-def event_ld(title: str, desc: str, start: str, image_url: str, url: str) -> str:
+def event_ld(title: str, desc: str, start: str, image_url: str, url: str, html: str, filename: str) -> dict:
     data = {
-        "@context": "https://schema.org",
         "@type": "Event",
         "name": title,
         "description": desc,
         "startDate": start,
         "endDate": start,
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "url": url,
+        },
+        "performer": event_performers(html, filename),
         "location": VENUE,
         "image": [image_url],
         "url": url,
         "organizer": ORGANIZER,
     }
-    return json.dumps(data, ensure_ascii=False)
+    return data
 
 
-def breadcrumb_ld(title: str, is_event: bool, filename: str) -> str:
+def breadcrumb_ld(title: str, is_event: bool, filename: str) -> dict:
     items = [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": f"{SITE}/"},
     ]
@@ -140,10 +211,7 @@ def breadcrumb_ld(title: str, is_event: bool, filename: str) -> str:
         items.append({"@type": "ListItem", "position": 3, "name": title})
     elif filename not in ("index.html",):
         items.append({"@type": "ListItem", "position": 2, "name": title})
-    return json.dumps(
-        {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items},
-        ensure_ascii=False,
-    )
+    return {"@type": "BreadcrumbList", "itemListElement": items}
 
 
 def page_h1(html: str) -> str:
@@ -191,20 +259,21 @@ def enhance_page(path: Path, first_img_basenames: dict={}):
         '  <meta name="twitter:card" content="summary_large_image">',
     ]
 
-    scripts = []
+    graph = []
     if is_event:
         date_iso = event_date_iso(html)
         if date_iso:
-            scripts.append(event_ld(h1, desc, date_iso, og_img_url, canonical))
-        scripts.append(breadcrumb_ld(h1, True, rel_path))
+            graph.append(event_ld(h1, desc, date_iso, og_img_url, canonical, html, path.name))
+        graph.append(breadcrumb_ld(h1, True, rel_path))
     elif rel_path == "index.html":
-        scripts.append(homepage_ld())
+        graph.append(org_ld())
+        graph.append(homepage_ld())
     else:
-        scripts.append(breadcrumb_ld(h1, False, rel_path))
+        graph.append(breadcrumb_ld(h1, False, rel_path))
 
-    for s in scripts:
+    if graph:
         lines.append('  <script type="application/ld+json">')
-        lines.append("  " + s)
+        lines.append("  " + json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False))
         lines.append("  </script>")
     lines.append(END_MARK)
     block = "\n".join(lines) + "\n"
